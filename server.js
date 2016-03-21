@@ -6,9 +6,12 @@ var handles = require('express-handlebars');
 var app = express();
 
 //This allows us to use handlebars as our template engine
+
+app.set('views', __dirname + '/public/views');
 app.engine('.hbs', handles({
 	defaultLayout: 'base',
-	extname: '.hbs'
+	layoutsDir: 'public/views/layouts',
+        extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
 
