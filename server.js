@@ -5,8 +5,10 @@ var handles = require('express-handlebars');
 
 var app = express();
 
-//This allows us to use handlebars as our template engine
+// Static Files
+app.use(express.static('public'));
 
+//This allows us to use handlebars as our template engine
 app.set('views', __dirname + '/public/views');
 app.engine('.hbs', handles({
 	defaultLayout: 'base',
@@ -44,7 +46,7 @@ app.get('/tracks', function(req, res){
 		//Spotify gives us back the data in a format javascript can't understand.
 		//Javascript understands JSON, so we use the JSON.parse function to convert the data
 		var data = JSON.parse(body);
-		
+
 		//UNCOMMENT ME: to see how the data returned by spotify is formatted
 		//console.log(data);
 
