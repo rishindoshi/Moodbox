@@ -39,6 +39,11 @@ app.get('/login', function(req, res){
 	res.render('login');
 });
 
+app.get('/logout', function(req, res){
+	req.logout();
+	res.redirect('/');
+});
+
 songData = {
 	'song' : [
 		{
@@ -59,8 +64,7 @@ app.get('/results', loggedIn, function(req, res){
 
 });
 
-app.get('/', function(req, res) {
-	console.log(req.user)
+app.get('/', loggedIn, function(req, res) {
 	res.render('home', {user: req.user});
 });
 
