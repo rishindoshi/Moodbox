@@ -4,7 +4,11 @@
   "dependencies": {
     "express": "~4.8.8",
     "express-handlebars": "^2.0.1",
+    "express-session": "^1.13.0",
     "handlebars": "^4.0.4",
-    "request": "^2.65.0"
+    "passport": "^0.3.2",
+    "passport-spotify": "^0.3.0",
+    "request": "^2.65.0",
+    "session": "^0.1.0"
   }
 }
