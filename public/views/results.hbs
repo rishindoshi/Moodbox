@@ -1,0 +1,23 @@
+<div class="page-header">
+  <h1>Your Results <small>Check it</small></h1>
+</div>
+<div class="col-md-8">
+	{{#each song}}
+	<ul class="media-list">
+		<li class="media">
+			<div class="media-left">
+				<a href="#">
+					<img class="media-object" src="{{imgUrl}}">
+				</a>
+			</div>
+			<div class="media-body">
+				<h4 class="media-heading">{{title}}</h4>
+			</div>
+		</li>
+	</ul>
+	{{/each}}
+</div>
+<div class="col-md-4">
+    <a class="btn btn-primary" href="/">TRY AGAIN</a>
+	<div class="fb-share-button" data-href="http://www.moodbox.xyz" data-layout="box_count"></div>
+</div>
