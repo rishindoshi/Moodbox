@@ -4,23 +4,18 @@ var request = require('request');
 var handles = require('express-handlebars');
 var passport = require('passport');
 var session = require('express-session');
+var config = require('./app/config');
 var app = express();
 
-app.use(session({ secret: 'keyboard cat' }));
-// Initialize Passport!  Also use passport.session() middleware, to support
-// persistent login sessions (recommended).
+app.use(session({ secret: 'dick chaney made money off the Iraq War' }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-function loggedIn(req, res, next) {
-    if (req.user) {
-        next();
-    } else {
-        res.redirect('/login');
-    }
-}
+var spotifyAPI = require('./app/spotify')(config);
+require('./app/auth')(app, passport, config, spotifyAPI);
 
-require('./app/auth')(app, passport);
+
+require('./app/routes')(app, spotifyAPI);
 
 // Static Files
 app.use(express.static(__dirname + '/public'));
@@ -33,41 +28,6 @@ app.engine('.hbs', handles({
         extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
-
-//Rendering our index page
-app.get('/login', function(req, res){
-	res.render('login');
-});
-
-app.get('/logout', function(req, res){
-	req.logout();
-	res.redirect('/');
-});
-
-songData = {
-	'song' : [
-		{
-			title: 'Junk of the heart',
-			imgUrl: 'https://facebook.com'
-		},
-		{
-			title: 'Hello',
-			imgUrl: 'Okay'
-		}
-	]
-}
-
-//When a user submits an artist
-app.get('/results', loggedIn, function(req, res){
-
-	res.render('results', songData);
-
-});
-
-app.get('/', loggedIn, function(req, res) {
-	res.render('home', {user: req.user});
-});
-
 
 //Start the server
 app.listen(8888);

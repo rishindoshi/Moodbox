@@ -1,4 +1,4 @@
-module.exports = function(app, passport) {
+module.exports = function(app, passport, config, api) {
 
 	SpotifyStrategy = require('passport-spotify').Strategy;
 
@@ -21,16 +21,14 @@ module.exports = function(app, passport) {
 		passport.authenticate('spotify', { failureRedirect: '/login' }),
 		function(req, res) {
 		    // Successful authentication, redirect home.
+		    console.log(req.query)
 		    res.redirect('/');
 		});
 
-	var appKey = '2f0e3328f63443ebb8f28044ac6859ad';
-	var appSecret = '44449f5e8475482aa8cba09b74be1c8c';
-
 	passport.use(new SpotifyStrategy({
-		clientID: appKey,
-		clientSecret: appSecret,
-		callbackURL: "http://localhost:8888/auth/spotify/callback"
+		clientID: config.appKey,
+		clientSecret: config.appSecret,
+		callbackURL: config.callbackURL
 	}, function(accessToken, refreshToken, profile, done) {
 	    // asynchronous verification, for effect...
 	    process.nextTick(function () {
@@ -38,6 +36,7 @@ module.exports = function(app, passport) {
 	      // represent the logged-in user. In a typical application, you would want
 	      // to associate the spotify account with a user record in your database,
 	      // and return that user instead.
+	      api.setAccessToken(accessToken);
 	      return done(null, profile);
 	  });
 	}));
