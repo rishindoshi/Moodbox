@@ -11,7 +11,7 @@ module.exports = function(app, passport, config, api) {
 	});
 
 	app.get('/auth/spotify',
-		passport.authenticate('spotify'),
+		passport.authenticate('spotify', { scope: ['playlist-modify-private', 'user-read-email', 'user-read-private'] }),
 		function(req, res){
 		    // The request will be redirected to spotify for authentication, so this
 		    // function will not be called.
