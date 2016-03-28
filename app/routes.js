@@ -22,7 +22,13 @@ module.exports = function(app, api) {
 
 	//When a user submits an artist
 	app.get('/results', loggedIn, function(req, res){
-
+		// Here we get all the tracks from all the user's playlists
+		// we want to extract all the unique artists from each of these tracks
+		// we then want this list of artists and add to it related artists
+		// we then want to extract playlists that match input mood (happy/sad/etc) by doing playlist search on spotifyAPI
+		// we will again extract unique artists from these playlists and also add related artists
+		// now find intersection of artists between above two lists
+		// now generate playlist of random tracks from all artists in above intersection artist list
 		api.getUserPlaylists(req.user.id)
 			.then(function(data) {
 				console.log(data.body.items)
