@@ -2,24 +2,7 @@
 	<h1>Your Results <small>Check it</small></h1>
 </div>
 <div class="col-md-8">
-	{{#each tracks.items}}
-	<ul class="media-list">
-		<li class="media">
-			<div class="media-left">
-				<a href="#">
-					<img class="media-object" src="{{track.album.art}}">
-				</a>
-			</div>
-			<div class="media-body">
-				<h4 class="media-heading">{{track.name}}</h4>
-			</div>
-			<audio controls>
-				<source src="{{track.preview_url}}" type="audio/mpeg"/>
-				Your browser does not support the audio tag.
-			</audio>
-		</li>
-	</ul>
-	{{/each}}
+	<iframe src="https://embed.spotify.com/?uri={{uri}}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
 </div>
 <div class="col-md-4">
 	<a class="btn btn-primary" href="/">TRY AGAIN</a>
