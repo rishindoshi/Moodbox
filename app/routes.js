@@ -20,7 +20,7 @@ module.exports = function(app, api) {
 	});
 
 
-	//When a user submits an artist
+	// When a user submits an artist
 	app.get('/results', loggedIn, function(req, res){
 		// Here we get all the tracks from all the user's playlists
 		// we want to extract all the unique artists from each of these tracks
@@ -31,8 +31,12 @@ module.exports = function(app, api) {
 		// now generate playlist of random tracks from all artists in above intersection artist list
 		api.getUserPlaylists(req.user.id)
 			.then(function(data) {
-				console.log(data.body.items)
-				res.render('results', data.body);
+				playlistId = data.body.items[0].id;
+				api.getPlaylist(req.user.id, playlistId)
+					.then(function(data) {
+						console.log(data.body.tracks.items);
+						res.render('results', data.body);
+					})
 			});
 	});
 
