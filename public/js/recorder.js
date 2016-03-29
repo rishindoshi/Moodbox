@@ -45,7 +45,6 @@ function doneRecording(){
 	clearInterval(extractionInterval);
 	console.log("done recording");
 	console.log(mfcc);
-	mfcc = []
 	$.ajax({
 		type: 'GET',
 		url: "/mood",
@@ -54,6 +53,9 @@ function doneRecording(){
 		data: {
 			features: mfcc
 		},
+		success: function(){
+			mfcc = [];
+		}
 	});
 };
 
