@@ -21,8 +21,8 @@ module.exports = function(app, api) {
 
 	app.get('/mood', function(req, res){
 		console.log("received mood request");
-		console.log(req.query.features);
-		// pass in mfcc data through params?
+		// console.log(req.query.features);
+		// pass features into classifier
 	});
 
 	// When a user submits an artist
