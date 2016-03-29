@@ -8,6 +8,9 @@ var config = require('./app/config');
 var bodyParser = require('body-parser');
 var app = express();
 
+// Static Files
+app.use(express.static(__dirname + '/public'));
+
 app.use(session({ secret: 'dick chaney made money off the Iraq War' }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -22,8 +25,6 @@ require('./app/auth')(app, passport, config, spotifyAPI);
 
 require('./app/routes')(app, spotifyAPI);
 
-// Static Files
-app.use(express.static(__dirname + '/public'));
 
 //This allows us to use handlebars as our template engine
 app.set('views', __dirname + '/public/views');
