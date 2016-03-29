@@ -40,27 +40,25 @@ module.exports = function(app, api) {
 				api.getPlaylist(req.user.id, playlistId)
 					.then(function(data) {
 						// console.log(data.body.tracks.items);
-						res.render('results', data.body);
+						api.createPlaylist(req.user.id, 'test playlist', { 'public' : false })
+						  .then(function(data) {
+							var playlist = data.body;
+							// sample data
+							var tracklist = ["spotify:track:0eGsygTp906u18L0Oimnem"];
+							// add tracks to the playlist and render the widget
+							api.addTracksToPlaylist(req.user.id, playlist.id, tracklist)
+								.then(function(data) {
+								    res.render('results', playlist);
+								});
+
+						  }, function(err) {
+						    console.log('Something went wrong!', err);
+						  });
 					})
 			});
 	});
 
-		// now generate playlist of random tracks from all artists in above intersection artist list
-		api.createPlaylist(req.user.id, 'test playlist', { 'public' : false })
-		  .then(function(data) {
-			var playlist = data.body;
-			// sample data
-			var tracklist = ["spotify:track:0eGsygTp906u18L0Oimnem"];
-			// add tracks to the playlist and render the widget
-			api.addTracksToPlaylist(req.user.id, playlist.id, tracklist)
-				.then(function(data) {
-				    res.render('results', playlist);
-				});
-
-		  }, function(err) {
-		    console.log('Something went wrong!', err);
-		  });
-	});
+	// now generate playlist of random tracks from all artists in above intersection artist list
 
 	app.get('/', loggedIn, function(req, res) {
 		res.render('home', {user: req.user});
