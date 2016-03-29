@@ -5,11 +5,16 @@ var handles = require('express-handlebars');
 var passport = require('passport');
 var session = require('express-session');
 var config = require('./app/config');
+var bodyParser = require('body-parser');
 var app = express();
 
 app.use(session({ secret: 'dick chaney made money off the Iraq War' }));
 app.use(passport.initialize());
 app.use(passport.session());
+// app.use(bodyParser.urlencoded({
+// 	extended: true
+// }));
+app.use(bodyParser.json())
 
 var spotifyAPI = require('./app/spotify')(config);
 require('./app/auth')(app, passport, config, spotifyAPI);

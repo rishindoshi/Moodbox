@@ -19,6 +19,11 @@ module.exports = function(app, api) {
 		res.redirect('/');
 	});
 
+	app.get('/mood', function(req, res){
+		console.log("received mood request");
+		console.log(req.query.features);
+		// pass in mfcc data through params?
+	});
 
 	// When a user submits an artist
 	app.get('/results', loggedIn, function(req, res){
@@ -34,7 +39,7 @@ module.exports = function(app, api) {
 				playlistId = data.body.items[0].id;
 				api.getPlaylist(req.user.id, playlistId)
 					.then(function(data) {
-						console.log(data.body.tracks.items);
+						// console.log(data.body.tracks.items);
 						res.render('results', data.body);
 					})
 			});
