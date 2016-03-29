@@ -45,18 +45,29 @@ module.exports = function(app, api) {
 			});
 	});
 
-	app.get('/create', loggedIn, function(req, res){
-		api.createPlaylist(req.user.id, 'My Cool Playlist', { 'public' : false })
+		// now generate playlist of random tracks from all artists in above intersection artist list
+		api.createPlaylist(req.user.id, 'test playlist', { 'public' : false })
 		  .then(function(data) {
-		    console.log('Created playlist!');
-		    res.render('results');
+			var playlist = data.body;
+			// sample data
+			var tracklist = ["spotify:track:0eGsygTp906u18L0Oimnem"];
+			// add tracks to the playlist and render the widget
+			api.addTracksToPlaylist(req.user.id, playlist.id, tracklist)
+				.then(function(data) {
+				    res.render('results', playlist);
+				});
+
 		  }, function(err) {
 		    console.log('Something went wrong!', err);
 		  });
-	})
+	});
 
 	app.get('/', loggedIn, function(req, res) {
 		res.render('home', {user: req.user});
 	});
+
+	app.get('*', loggedIn, function(req, res) {
+		res.redirect('/', {user: req.user});
+	})
 
 }
