@@ -30,9 +30,15 @@ module.exports = function(app, api, generate) {
 	// When a user submits an artist
 	app.get('/results', loggedIn, function(req, res){
 		var userArtists = [];
-		generate.getUserArtists("rdoshi023", api)
+		generate.getUserArtists(req.query.id, api)
 			.then(function(artists){
-				console.log(artists);
+				generate.getAllUserRelatedArtists(artists, api)
+					.then(function(allArtists){
+						// console.log(allArtists);
+						res.send(allArtists);
+					}, function(error){
+						console.log(error);
+					})
 			}, function(error){
 				console.log(error);
 			});

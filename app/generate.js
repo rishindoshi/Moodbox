@@ -6,6 +6,36 @@
 // now find intersection of artists between above two lists
 var Q = require('q');
 
+exports.getRelatedArtists = function(artistId, api){
+	var deferred = Q.defer();
+	api.getArtistRelatedArtists(artistId)
+	    .then(function(data) {
+	    	var artistIds = data.body.artists.map(function(artist){
+	    		return artist.name;
+	    	});
+	    	deferred.resolve(artistIds);
+	    }, function(err) {
+	        console.log(err);
+	    });
+	return deferred.promise;
+};
+
+exports.getAllUserRelatedArtists = function(artistIds, api){
+	var deferred = Q.defer();
+	var promiseArray = [];
+	var allArtists = [];
+	for(var i=0; i < artistIds.length; ++i){
+		promiseArray.push(this.getRelatedArtists(artistIds[i], api));
+	}
+	Q.all(promiseArray).done(function(values){
+		for(var j=0; j < values.length; ++j){
+			allArtists = allArtists.concat(values[j]);
+		}
+		deferred.resolve(allArtists);
+	});
+	return deferred.promise;
+};
+
 exports.getUserPlaylistIds = function(userid, api){
 	var deferred = Q.defer();
 	api.getUserPlaylists(userid)
@@ -27,7 +57,11 @@ exports.getPlaylistArtists = function(userid, playlistid, api){
 	api.getPlaylist(userid, playlistid)
 		.then(function(data){
 			var artists = data.body.tracks.items.map(function(track){
-				return track.track.artists[0].name;
+				// return {
+				// 	name: track.track.artists[0].name,
+				// 	id: track.track.artists[0].id
+				// };
+				return track.track.artists[0].id;
 			});
 			deferred.resolve(artists);
 		}, function(error){
@@ -36,6 +70,7 @@ exports.getPlaylistArtists = function(userid, playlistid, api){
 	return deferred.promise;
 };
 
+// Might not want to call this every time a user requests results, just once when they login maybe
 exports.getUserArtists = function(userid, api){
 	var deferred = Q.defer();
 	var promiseArray = []
