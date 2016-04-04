@@ -8,10 +8,11 @@ var Q = require('q');
 
 exports.getUserPlaylistIds = function(userid, api){
 	var deferred = Q.defer();
-	console.log("getting user playlists");
 	api.getUserPlaylists(userid)
 		.then(function(data){
-			var ids = data.body.items.map(function(playlist){
+			var ids = data.body.items.filter(function(playlist){
+				return playlist.public;
+			}).map(function(playlist){
 				return playlist.id;
 			});
 			deferred.resolve(ids);
@@ -21,16 +22,40 @@ exports.getUserPlaylistIds = function(userid, api){
 	return deferred.promise;
 };
 
-exports.getPlaylistArtists = function(userid, playlistid){
+exports.getPlaylistArtists = function(userid, playlistid, api){
 	var deferred = Q.defer();
 	api.getPlaylist(userid, playlistid)
 		.then(function(data){
-			var tracks = data.body.tracks.items.map(function(track){
+			var artists = data.body.tracks.items.map(function(track){
 				return track.track.artists[0].name;
 			});
-			deferred.resolve(tracks);
+			deferred.resolve(artists);
 		}, function(error){
-			deferred.reject("ERROR: get playlist tracks");
+			deferred.reject("ERROR: get playlist artists");
 		});
 	return deferred.promise;
 };
+
+exports.getUserArtists = function(userid, api){
+	var deferred = Q.defer();
+	var promiseArray = []
+	var userArtists = [];
+	var self = this;
+	this.getUserPlaylistIds(userid, api)
+		.then(function(ids){
+			for(var i=0; i < ids.length; ++i){
+				promiseArray.push(self.getPlaylistArtists(userid, ids[i], api));
+			}
+			Q.all(promiseArray).done(function(values){
+				for(var j=0; j<values.length; ++j){
+					userArtists = userArtists.concat(values[j]);
+				}
+				deferred.resolve(Array.from(new Set(userArtists)));
+			}, function(error){
+				console.log(error);
+			});
+		}, function(error){	
+			console.log(error);
+		});
+	return deferred.promise;
+}

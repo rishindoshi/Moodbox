@@ -1,3 +1,4 @@
+var Q = require('q');
 module.exports = function(app, api, generate) {
 
 	// Logged in check
@@ -28,10 +29,14 @@ module.exports = function(app, api, generate) {
 
 	// When a user submits an artist
 	app.get('/results', loggedIn, function(req, res){
-		res.send("results");
+		var userArtists = [];
+		generate.getUserArtists("rdoshi023", api)
+			.then(function(artists){
+				console.log(artists);
+			}, function(error){
+				console.log(error);
+			});
 	});
-
-	// now generate playlist of random tracks from all artists in above intersection artist list
 
 	app.get('/', loggedIn, function(req, res) {
 		res.render('home', {user: req.user});
