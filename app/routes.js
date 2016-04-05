@@ -22,6 +22,9 @@ module.exports = function(app, api, generate) {
 
 	app.get('/mood', function(req, res){
 		console.log("received mood request");
+
+		// generate.getMoodBasedPlaylist("happy", api);
+
 		// console.log(req.query.features);
 		// pass features into classifier
 		res.send("todo later");

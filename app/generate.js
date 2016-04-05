@@ -6,6 +6,18 @@
 // now find intersection of artists between above two lists
 var Q = require('q');
 
+exports.getMoodBasedPlaylist = function(mood, api){
+	var deferred = Q.defer();
+	api.searchPlaylists(mood)
+		.then(function(data){
+			console.log(data.body.playlists.items[0]);
+			// deferred.resolve(data.body);
+		}, function(error){
+			console.log(error);
+		});
+	return deferred.promise;
+}
+
 exports.getRelatedArtists = function(artistId, api){
 	var deferred = Q.defer();
 	api.getArtistRelatedArtists(artistId)
