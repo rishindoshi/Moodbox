@@ -7,6 +7,7 @@ var session = require('express-session');
 var config = require('./app/config');
 var bodyParser = require('body-parser');
 var sentiment = require('sentiment');
+var qgen = require('./app/qgen');
 var app = express();
 
 // Static Files
@@ -20,7 +21,7 @@ app.use(bodyParser.json())
 var spotifyAPI = require('./app/spotify')(config);
 var generate = require("./app/generate");
 require('./app/auth')(app, passport, config, spotifyAPI);
-require('./app/routes')(app, spotifyAPI, generate);
+require('./app/routes')(app, spotifyAPI, generate, qgen);
 
 //This allows us to use handlebars as our template engine
 app.set('views', __dirname + '/public/views');
