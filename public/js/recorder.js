@@ -40,7 +40,7 @@ if (('webkitSpeechRecognition' in window)){
   		recognizing = false;
   	};
 } else {
-	console.log("ERROR: speech recognition not supported");
+	alert("ERROR: speech recognition not supported in broswer");
 }
 
 function swapButton() {
@@ -76,7 +76,7 @@ function startRecording(){
 };
 
 function startExtraction(){
-	console.log("start recording");
+	console.log("START RECORDING");
 	window.source.connect(context.destination);
 	window.extractionInterval = setInterval(function(){
 		var featureArray = meydaAnalyzer.get(["mfcc"]);
