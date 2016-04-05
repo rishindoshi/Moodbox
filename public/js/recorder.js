@@ -87,7 +87,6 @@ function doneRecording(){
 	} else {
 		console.log("NO FINAL TRANSCRIPT RECORDED");
 	}
-	finalTranscript = "";
 	recognizer.stop();
 	$.ajax({
 		type: 'GET',
@@ -95,10 +94,12 @@ function doneRecording(){
 		dataType: "json",
 		contentType: "application/json",
 		data: {
-			features: mfcc
+			features: mfcc,
+			transcript: finalTranscript
 		},
 		success: function(){
 			mfcc = [];
+			finalTranscript = "";
 		}
 	});
 };
