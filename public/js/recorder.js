@@ -43,7 +43,14 @@ if (('webkitSpeechRecognition' in window)){
 	console.log("ERROR: speech recognition not supported");
 }
 
+function swapButton() {
+	// Swap button
+	$("#record-btn").text('Finish');
+	document.getElementById("record-btn").onclick = doneRecording;
+}
+
 function startRecording(){
+	swapButton();
 	navigator.getUserMedia({video: false, audio: true}, function(mediaStream) {
 		window.source = context.createMediaStreamSource(mediaStream);
 		var options = {
