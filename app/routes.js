@@ -1,5 +1,5 @@
 var Q = require('q');
-module.exports = function(app, api, generate, qgen) {
+module.exports = function(app, api, generate) {
 
 	// Logged in check
 	function loggedIn(req, res, next) {
@@ -33,22 +33,30 @@ module.exports = function(app, api, generate, qgen) {
 	// When a user submits an artist
 	app.get('/results', loggedIn, function(req, res){
 		var userArtists = [];
-		generate.getUserArtists(req.query.id, api)
-			.then(function(artists){
-				generate.getAllUserRelatedArtists(artists, api)
-					.then(function(allArtists){
-						// console.log(allArtists);
-						res.send(allArtists);
-					}, function(error){
-						console.log(error);
-					})
+		// generate.getUserArtists(req.query.id, api)
+		// 	.then(function(artists){
+		// 		generate.getAllUserRelatedArtists(artists, api)
+		// 			.then(function(allArtists){
+		// 				console.log(allArtists);
+		// 			}, function(error){
+		// 				console.log(error);
+		// 			})
+		// 	}, function(error){
+		// 		console.log(error);
+		// 	});
+
+		generate.getMoodBasedPlaylist("happy", api)
+			.then(function(data){
+				console.log("getMoodBasedPlaylist success");
+				console.log(data.length);
 			}, function(error){
 				console.log(error);
-			});
+			})
+
 	});
 
 	app.get('/', loggedIn, function(req, res) {
-		res.render('home', {user: req.user, q: qgen()});
+		res.render('home', {user: req.user});
 	});
 
 	// app.get('*', loggedIn, function(req, res) {
