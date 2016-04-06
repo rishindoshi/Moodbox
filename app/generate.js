@@ -8,10 +8,24 @@ var Q = require('q');
 
 exports.getMoodBasedPlaylist = function(mood, api){
 	var deferred = Q.defer();
+	promiseArray = [];
+	moodArtists = [];
+	var self = this;
 	api.searchPlaylists(mood)
 		.then(function(data){
-			console.log(data.body.playlists.items[0]);
-			// deferred.resolve(data.body);
+			var playlists = data.body.playlists.items;
+			for(var i=0; i < playlists.length; ++i){
+				promiseArray.push(self.getPlaylistArtists(playlists[i].owner.id,
+														  playlists[i].id, api));
+			}
+			Q.all(promiseArray).done(function(values){
+				for(var j=0; j < values.length; ++j){
+					moodArtists = moodArtists.concat(values[j]);
+				}
+				deferred.resolve(Array.from(new Set(moodArtists)));
+			}, function(error){
+				console.log(error);
+			});
 		}, function(error){
 			console.log(error);
 		});
@@ -68,15 +82,16 @@ exports.getPlaylistArtists = function(userid, playlistid, api){
 	var deferred = Q.defer();
 	api.getPlaylist(userid, playlistid)
 		.then(function(data){
-			var artists = data.body.tracks.items.map(function(track){
-				// return {
-				// 	name: track.track.artists[0].name,
-				// 	id: track.track.artists[0].id
-				// };
+			var tracks = data.body.tracks.items;
+			var artists = tracks.filter(function(track){
+				return track.track;
+			}).map(function(track){
+				// might wanna return obj with name and id later
 				return track.track.artists[0].id;
 			});
 			deferred.resolve(artists);
 		}, function(error){
+			console.log(playlistid + " retrieve error");
 			deferred.reject("ERROR: get playlist artists");
 		});
 	return deferred.promise;
