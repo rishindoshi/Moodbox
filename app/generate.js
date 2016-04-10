@@ -169,7 +169,22 @@ exports.getArtists = function(userid, api){
 	return deferred.promise;
 };
 
+exports.makePlaylist = function(tracks, userid, api) {
 
+	// Convert IDs into URIs
+	tracks.forEach(function(track, index, tracks) {
+		tracks[index] = "spotify:track:" + track;
+	});
+	// Create Playlist
+	api.createPlaylist(userid, "Moodbox", {public: false})
+		.then(function(data) {
+			var playlistid = data.body.id;
+			api.addTracksToPlaylist(userid, playlistid, tracks)
+				.then(function(data) {
+					return data
+				});
+		});
+};
 
 
 
