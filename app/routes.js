@@ -31,12 +31,22 @@ module.exports = function(app, api, generate) {
 	});
 
 	app.get('/test', function(req, res){
+		var mood = "happy";
 		var userid = req.query.id;
+		var userArtists = [];
 		generate.getArtists(userid, api)
-			.then(function(allArtists){
-				console.log(allArtists);
-			}, function(error){
-				// console.log(error);
+			.then(function(aids){
+				userArtists = aids;
+				return generate.getMoodArtists(mood, api);
+			})
+			.then(function(moodArtists){
+				var playlist = moodArtists.filter(function(n) {
+				    return userArtists.indexOf(n) != -1;
+				});
+				generate.printArtistNames(playlist, api);
+			})
+			.catch(function(error){
+				console.log(error);
 			});
 	});
 

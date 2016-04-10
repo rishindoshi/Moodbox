@@ -9,7 +9,7 @@ var Q = require('q');
 var request = require('request-promise');
 var promiseRetry = require('promise-retry');
 
-exports.getMoodBasedPlaylist = function(mood, api){
+exports.getMoodArtists = function(mood, api){
 	var deferred = Q.defer();
 	promiseArray = [];
 	moodArtists = [];
@@ -17,39 +17,25 @@ exports.getMoodBasedPlaylist = function(mood, api){
 	api.searchPlaylists(mood)
 		.then(function(data){
 			var playlists = data.body.playlists.items;
-			for(var i=0; i < playlists.length; ++i){
-				promiseArray.push(self.getPlaylistArtists(playlists[i].owner.id,
-														  playlists[i].id, api));
+			var num = (playlists.length < 4) ? playlists.length : 4;
+			for(var i=0; i < num; ++i){
+				promiseArray.push(self.playlistArtists(playlists[i].id,
+													   playlists[i].owner.id,
+													   api));
 			}
-			Q.all(promiseArray).done(function(values){
-				for(var j=0; j < values.length; ++j){
-					moodArtists = moodArtists.concat(values[j]);
-				}
-				deferred.resolve(Array.from(new Set(moodArtists)));
-			}, function(error){
-				deferred.reject(error);
-			});
-		}, function(error){
+			return Q.all(promiseArray);
+		})
+		.then(function(values){
+			for(var i=0; i<values.length; ++i){
+				moodArtists = moodArtists.concat(values[i]);
+			}
+			deferred.resolve(Array.from(new Set(moodArtists)));
+		})	
+		.catch(function(error){
 			deferred.reject(error);
 		});
 	return deferred.promise;
 }
-
-exports.getUserPlaylistIds = function(userid, api){
-	var deferred = Q.defer();
-	api.getUserPlaylists(userid)
-		.then(function(data){
-			var ids = data.body.items.filter(function(playlist){
-				return playlist.public;
-			}).map(function(playlist){
-				return playlist.id;
-			});
-			deferred.resolve(ids);
-		}, function(error){
-			deferred.reject(error);
-		});
-	return deferred.promise;
-};
 
 exports.printArtistNames = function(ids, api){
 	console.log(ids);
@@ -63,18 +49,37 @@ exports.printArtistNames = function(ids, api){
 		});
 }
 
-exports.playlistTracks = function(pid, userid, api){
+exports.getUserPlaylistIds = function(userid, api){
+	var deferred = Q.defer();
+	api.getUserPlaylists(userid)
+		.then(function(data){
+			var ids = data.body.items.filter(function(playlist){
+				return playlist.public;
+			}).map(function(playlist){
+				return playlist.id;
+			});
+			ids = ids.slice(0, 4);
+			deferred.resolve(ids);
+		}, function(error){
+			deferred.reject(error);
+		});
+	return deferred.promise;
+};
+
+exports.playlistArtists = function(pid, userid, api){
 	var deferred = Q.defer();
 	api.getPlaylistTracks(userid, pid)
 		.then(function(data){
 			var tracks = data.body.items;
-			var artists = tracks.map(function(track){
-				return track.track.artists[0].id;
+			var artists = tracks.filter(function(track){
+				return track.track;
+			}).map(function(track){
+				return track.track.artists[0].id;	
 			});
 			deferred.resolve(artists);
 		})
 		.catch(function(error){
-			console.log("ERROR in playlistTracks:");
+			console.log("ERROR in playlistArtists:");
 			deferred.reject(error);
 		})
 	return deferred.promise;
@@ -85,7 +90,7 @@ exports.allPlaylistArtists = function(pids, userid, api){
 	var promiseArray = [];
 	var allArtists = [];
 	for(var i=0; i<pids.length; ++i){
-		promiseArray.push(this.playlistTracks(pids[i], userid, api));
+		promiseArray.push(this.playlistArtists(pids[i], userid, api));
 	}
 	Q.all(promiseArray).done(function(values){
 		for(var j=0; j<values.length; ++j){
@@ -129,7 +134,7 @@ exports.allRelatedArtists = function(aids, api){
 	var allRelated = [];
 	var self = this;
 	for(var i=0; i<aids.length; ++i){
-		promiseArray.push(self.relatedArtists(aids[i], api).delay(200));
+		promiseArray.push(self.relatedArtists(aids[i], api));
 	}
 	Q.all(promiseArray).done(function(values){
 		for(var j=0; j<values.length; ++j){
@@ -151,18 +156,18 @@ exports.getArtists = function(userid, api){
 			return self.allPlaylistArtists(pids, userid, api);
 		})
 		.then(function(aids){
-			console.log(aids.length);
 			userAndRelArtists = userAndRelArtists.concat(aids);
-			return self.allRelatedArtists(aids, api);
+			var numToExtract = (aids.length < 20) ? aids.length : 20; 
+			return self.allRelatedArtists(aids.slice(0, numToExtract), api);
 		})
 		.then(function(relids){
-			console.log(relids.length);
 			userAndRelArtists = userAndRelArtists.concat(relids);
 			deferred.resolve(Array.from(new Set(userAndRelArtists)));
 		})
 		.catch(function(error){
 			if(error.message == "timeout"){
 				console.log("API TIMEOUT");
+				process.exit();
 			}
 			deferred.reject(error);
 		});
