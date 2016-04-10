@@ -1,5 +1,20 @@
 <div class="center top-buffer">
-<h1 class="title bump">{{user.id}}</h1>
-<a class="button button-circle button-flat-caution" id="record-btn" onclick="startRecording()">Start Recording</a>
-<a class="button button-circle button-flat-caution" id="record-btn" href="/test?id={{user.id}}">Test Playlist</a>
+	<h1 class="title bump">{{question}}</h1>
+	<h3 id="text" class="bump"></h3>
+	<a class="button button-circle button-flat-caution" id="record-btn" onclick="startRecording()">Start Recording</a>
+	<!-- <a class="button button-circle button-flat-caution" id="record-btn" href="/test?id={{user.id}}">Test Playlist</a> -->
+</div>
+<div id="overlay" class="gone">
+	<div class="outerlay">
+		<div class="loading">
+			<h1>Making your playlist</h1>
+			<div class="spinner">
+				<div class="rect1"></div>
+				<div class="rect2"></div>
+				<div class="rect3"></div>
+				<div class="rect4"></div>
+				<div class="rect5"></div>
+			</div>
+		</div>
+	</div>
 </div>
