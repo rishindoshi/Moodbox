@@ -35,6 +35,10 @@ if (('webkitSpeechRecognition' in window)){
 	        }
 	    }
 	    console.log(interimTranscript);
+	    if (finalTranscript.length > 0 && interimTranscript == "") {
+	    	doneRecording();
+
+	    }
 	    updateText(interimTranscript);
   	};
 
@@ -48,10 +52,8 @@ if (('webkitSpeechRecognition' in window)){
 	alert("ERROR: speech recognition not supported in broswer");
 }
 
-function swapButton() {
-	// Swap button
-	$("#record-btn").text('Finish');
-	document.getElementById("record-btn").onclick = doneRecording;
+function hideButton() {
+	$("#record-btn").hide(100);
 }
 
 function showLoader() {
@@ -59,7 +61,7 @@ function showLoader() {
 }
 
 function startRecording(){
-	swapButton();
+	hideButton();
 	navigator.getUserMedia({video: false, audio: true}, function(mediaStream) {
 		window.source = context.createMediaStreamSource(mediaStream);
 		var options = {
@@ -100,7 +102,7 @@ function doneRecording(){
 	console.log("DONE RECORDING:");
 	// console.log(mfcc);
 	if(finalTranscript){
-		console.log(finalTranscript);
+		console.log("Final", finalTranscript);
 	} else {
 		console.log("NO FINAL TRANSCRIPT RECORDED");
 	}

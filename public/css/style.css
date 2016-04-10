@@ -37,6 +37,7 @@ a {
 	height: 100%;
 	width: 100%;
 	display: table;
+	text-align: center;
 }
 
 #overlay {
@@ -46,7 +47,6 @@ a {
 	top: 0;
 	bottom: 0;
 	background: white;
-	opacity: .98;
 }
 
 .gone {
