@@ -16,6 +16,10 @@ window.source = context.createBufferSource()
 source.connect(context.destination);
 mfcc = []
 
+function updateText(text) {
+	$('#text').text(text);
+}
+
 if (('webkitSpeechRecognition' in window)){
 	recognizer = new webkitSpeechRecognition();
 	recognizer.continuous = true;
@@ -31,6 +35,7 @@ if (('webkitSpeechRecognition' in window)){
 	        }
 	    }
 	    console.log(interimTranscript);
+	    updateText(interimTranscript);
   	};
 
   	recognizer.onstart = function(){
@@ -47,6 +52,10 @@ function swapButton() {
 	// Swap button
 	$("#record-btn").text('Finish');
 	document.getElementById("record-btn").onclick = doneRecording;
+}
+
+function showLoader() {
+	$('#overlay').removeClass('gone', 1000);
 }
 
 function startRecording(){
@@ -85,6 +94,7 @@ function startExtraction(){
 };
 
 function doneRecording(){
+	showLoader();
 	window.source.disconnect();
 	clearInterval(extractionInterval);
 	console.log("DONE RECORDING:");
