@@ -1,5 +1,5 @@
 var Q = require('q');
-module.exports = function(app, api, generate) {
+module.exports = function(app, api, generate, qgen) {
 
 	// Logged in check
 	function loggedIn(req, res, next) {
@@ -66,7 +66,12 @@ module.exports = function(app, api, generate) {
 	});
 
 	app.get('/', loggedIn, function(req, res) {
-		res.render('home', {user: req.user});
+
+		var question = qgen();
+		res.render('home', {
+			user: req.user,
+			question: question
+		});
 	});
 
 	// app.get('*', loggedIn, function(req, res) {
