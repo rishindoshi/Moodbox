@@ -9,8 +9,10 @@
     "handlebars": "^4.0.4",
     "passport": "^0.3.2",
     "passport-spotify": "^0.3.0",
+    "promise-retry": "^1.1.0",
     "q": "^1.4.1",
     "request": "^2.65.0",
+    "request-promise": "^2.0.1",
     "sentiment": "^1.0.6",
     "session": "^0.1.0",
     "spotify-web-api-node": "^2.2.0"

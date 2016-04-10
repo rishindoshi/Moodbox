@@ -1,10 +1,13 @@
 // Here we get all the tracks from all the user's playlists
 // we want to extract all the unique artists from each of these tracks
 // we then want this list of artists and add to it related artists
-// we then want to extract playlists that match input mood (happy/sad/etc) by doing playlist search on spotifyAPI
+// we then want to extract playlists that match input mood (happy/sad/etc) by doing play
+// list search on spotifyAPI
 // we will again extract unique artists from these playlists and also add related artists
 // now find intersection of artists between above two lists
 var Q = require('q');
+var request = require('request-promise');
+var promiseRetry = require('promise-retry');
 
 exports.getMoodBasedPlaylist = function(mood, api){
 	var deferred = Q.defer();
@@ -24,43 +27,13 @@ exports.getMoodBasedPlaylist = function(mood, api){
 				}
 				deferred.resolve(Array.from(new Set(moodArtists)));
 			}, function(error){
-				console.log(error);
+				deferred.reject(error);
 			});
 		}, function(error){
-			console.log(error);
+			deferred.reject(error);
 		});
 	return deferred.promise;
 }
-
-exports.getRelatedArtists = function(artistId, api){
-	var deferred = Q.defer();
-	api.getArtistRelatedArtists(artistId)
-	    .then(function(data) {
-	    	var artistIds = data.body.artists.map(function(artist){
-	    		return artist.name;
-	    	});
-	    	deferred.resolve(artistIds);
-	    }, function(err) {
-	        console.log(err);
-	    });
-	return deferred.promise;
-};
-
-exports.getAllUserRelatedArtists = function(artistIds, api){
-	var deferred = Q.defer();
-	var promiseArray = [];
-	var allArtists = [];
-	for(var i=0; i < artistIds.length; ++i){
-		promiseArray.push(this.getRelatedArtists(artistIds[i], api));
-	}
-	Q.all(promiseArray).done(function(values){
-		for(var j=0; j < values.length; ++j){
-			allArtists = allArtists.concat(values[j]);
-		}
-		deferred.resolve(allArtists);
-	});
-	return deferred.promise;
-};
 
 exports.getUserPlaylistIds = function(userid, api){
 	var deferred = Q.defer();
@@ -73,51 +46,132 @@ exports.getUserPlaylistIds = function(userid, api){
 			});
 			deferred.resolve(ids);
 		}, function(error){
-			deferred.reject("ERROR: get user playlist ids");
+			deferred.reject(error);
 		});
 	return deferred.promise;
 };
 
-exports.getPlaylistArtists = function(userid, playlistid, api){
-	var deferred = Q.defer();
-	api.getPlaylist(userid, playlistid)
+exports.printArtistNames = function(ids, api){
+	console.log(ids);
+	api.getArtists(ids)
 		.then(function(data){
-			var tracks = data.body.tracks.items;
-			var artists = tracks.filter(function(track){
-				return track.track;
-			}).map(function(track){
-				// might wanna return obj with name and id later
+			data.body.artists.forEach(function(artist){
+				console.log(artist.name);
+			});
+		}, function(error){
+			console.log("ERROR printArtistNames");
+		});
+}
+
+exports.playlistTracks = function(pid, userid, api){
+	var deferred = Q.defer();
+	api.getPlaylistTracks(userid, pid)
+		.then(function(data){
+			var tracks = data.body.items;
+			var artists = tracks.map(function(track){
 				return track.track.artists[0].id;
 			});
 			deferred.resolve(artists);
-		}, function(error){
-			console.log(playlistid + " retrieve error");
-			deferred.reject("ERROR: get playlist artists");
+		})
+		.catch(function(error){
+			console.log("ERROR in playlistTracks:");
+			deferred.reject(error);
+		})
+	return deferred.promise;
+};
+
+exports.allPlaylistArtists = function(pids, userid, api){
+	var deferred = Q.defer();
+	var promiseArray = [];
+	var allArtists = [];
+	for(var i=0; i<pids.length; ++i){
+		promiseArray.push(this.playlistTracks(pids[i], userid, api));
+	}
+	Q.all(promiseArray).done(function(values){
+		for(var j=0; j<values.length; ++j){
+			allArtists = allArtists.concat(values[j]);
+		}
+		deferred.resolve(allArtists);
+	}, function(error){
+		deferred.reject(error);
+	});
+	return deferred.promise;
+};
+
+exports.relatedArtists = function(aid, api){
+	var deferred = Q.defer();
+	var req_url = "https://api.spotify.com/v1/artists/" + aid + "/related-artists"
+	var rel_req_options = {
+		url: req_url,
+		qs: {country: 'US'},
+		method: 'GET'
+	};
+	request(rel_req_options)
+		.then(function(res){
+			var data = JSON.parse(res);
+			var ids = data.artists.map(function(artist){
+				return artist.id;
+			});
+			deferred.resolve(ids);
+		})
+		.catch(function(error){
+			if(error.statusCode == 429){
+				var waitTime = error.response.headers["retry-after"] * 1000;
+				deferred.reject("timeout");
+			}
+		});
+	return deferred.promise;
+}
+
+exports.allRelatedArtists = function(aids, api){
+	var deferred = Q.defer();
+	var promiseArray = [];
+	var allRelated = [];
+	var self = this;
+	for(var i=0; i<aids.length; ++i){
+		promiseArray.push(self.relatedArtists(aids[i], api).delay(200));
+	}
+	Q.all(promiseArray).done(function(values){
+		for(var j=0; j<values.length; ++j){
+			allRelated = allRelated.concat(values[j]);
+		}
+		deferred.resolve(allRelated);
+	}, function(error){
+		deferred.reject(error);
+	});
+	return deferred.promise;
+};
+
+exports.getArtists = function(userid, api){
+	var deferred = Q.defer();
+	var userAndRelArtists = [];
+	var self = this;
+	this.getUserPlaylistIds(userid, api)
+		.then(function(pids){
+			return self.allPlaylistArtists(pids, userid, api);
+		})
+		.then(function(aids){
+			console.log(aids.length);
+			userAndRelArtists = userAndRelArtists.concat(aids);
+			return self.allRelatedArtists(aids, api);
+		})
+		.then(function(relids){
+			console.log(relids.length);
+			userAndRelArtists = userAndRelArtists.concat(relids);
+			deferred.resolve(Array.from(new Set(userAndRelArtists)));
+		})
+		.catch(function(error){
+			if(error.message == "timeout"){
+				console.log("API TIMEOUT");
+			}
+			deferred.reject(error);
 		});
 	return deferred.promise;
 };
 
-// Might not want to call this every time a user requests results, just once when they login maybe
-exports.getUserArtists = function(userid, api){
-	var deferred = Q.defer();
-	var promiseArray = []
-	var userArtists = [];
-	var self = this;
-	this.getUserPlaylistIds(userid, api)
-		.then(function(ids){
-			for(var i=0; i < ids.length; ++i){
-				promiseArray.push(self.getPlaylistArtists(userid, ids[i], api));
-			}
-			Q.all(promiseArray).done(function(values){
-				for(var j=0; j<values.length; ++j){
-					userArtists = userArtists.concat(values[j]);
-				}
-				deferred.resolve(Array.from(new Set(userArtists)));
-			}, function(error){
-				console.log(error);
-			});
-		}, function(error){	
-			console.log(error);
-		});
-	return deferred.promise;
-}
+
+
+
+
+
+
