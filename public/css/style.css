@@ -33,6 +33,11 @@ a {
   border-radius: 15px;
 }
 
+#record-btn {
+	font-size: 18px;
+	font-weight: 800;
+}
+
 .outerlay {
 	height: 100%;
 	width: 100%;
