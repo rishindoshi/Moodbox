@@ -2,7 +2,17 @@
 	<h1>Your Results <small>Check it</small></h1>
 </div>
 <div class="col-md-8">
-	<iframe src="https://embed.spotify.com/?uri={{uri}}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+	{{#each tracks}}
+	<div class="media">
+		<a class="media-left" href="#">
+			<img class="media-object" src="{{img}}" alt="Generic placeholder image">
+		</a>
+		<div class="media-body">
+			<h4 class="media-heading">{{title}}</h4>
+			<audio controls></audio>
+		</div>
+	</div>
+	{{/each}}
 </div>
 <div class="col-md-4">
 	<a class="btn btn-primary" href="/">TRY AGAIN</a>
