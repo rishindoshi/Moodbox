@@ -174,21 +174,57 @@ exports.getArtists = function(userid, api){
 	return deferred.promise;
 };
 
-exports.makePlaylist = function(tracks, userid, api) {
+exports.getArtistPopTracks = function(aid, api){
+	var deferred = Q.defer();
+	api.getArtistTopTracks(aid, 'US')
+		.then(function(data){
+			var allTracks = data.body.tracks;
+			var userTracks = allTracks.slice(0, 5).map(function(track){
+				return track.id;
+			});
+			deferred.resolve(userTracks);
+		})
+		.catch(function(error){
+			deferred.reject(error);
+		});
+	return deferred.promise;
+};
 
-	// Convert IDs into URIs
+exports.generateTracks =function(aids, api){
+	var deferred = Q.defer();
+	var promiseArray = [];
+	var trackids = [];
+	for(var i=0; i<aids.length; ++i){
+		promiseArray.push(this.getArtistPopTracks(aids[i], api));
+	}
+	Q.all(promiseArray).done(function(values){
+		for(var j=0; j<values.length; ++j){
+			trackids = trackids.concat(values[j]);
+		}
+		deferred.resolve(trackids);
+	});
+	return deferred.promise;
+};
+
+exports.makePlaylist = function(tracks, userid, api) {
+	var deferred = Q.defer();
 	tracks.forEach(function(track, index, tracks) {
 		tracks[index] = "spotify:track:" + track;
 	});
-	// Create Playlist
 	api.createPlaylist(userid, "Moodbox", {public: false})
 		.then(function(data) {
 			var playlistid = data.body.id;
-			api.addTracksToPlaylist(userid, playlistid, tracks)
-				.then(function(data) {
-					return data
-				});
+			return api.addTracksToPlaylist(userid, playlistid, tracks);
+		})
+		.then(function(data){
+			//returns playlist obj with tracks in it
+			//extract tracks before resolving
+			deferred.resolve(data);
+		})
+		.catch(function(error){
+			deferred.reject(error);
 		});
+	return deferred.promise;
 };
 
 
