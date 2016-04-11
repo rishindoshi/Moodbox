@@ -35,7 +35,7 @@ exports.getMoodArtists = function(mood, api){
 		.then(function(data){
 			var playlists = data.body.playlists.items;
 			var num = (playlists.length < 4) ? playlists.length : 4;
-			playlists = this.shuffle(playlists);
+			playlists = self.shuffle(playlists);
 			for(var i=0; i < num; ++i){
 				promiseArray.push(self.playlistArtists(playlists[i].id,
 													   playlists[i].owner.id,
@@ -68,7 +68,9 @@ exports.printArtistNames = function(ids, api){
 }
 
 exports.getUserPlaylistIds = function(userid, api){
+	console.log("IN getUserPlaylistIds");
 	var deferred = Q.defer();
+	var self = this;
 	api.getUserPlaylists(userid)
 		.then(function(data){
 			var ids = data.body.items.filter(function(playlist){
@@ -76,8 +78,7 @@ exports.getUserPlaylistIds = function(userid, api){
 			}).map(function(playlist){
 				return playlist.id;
 			});
-			ids = this.shuffle(ids);
-			ids = ids.slice(0, 4);
+			ids = self.shuffle(ids).slice(0, 4);
 			deferred.resolve(ids);
 		}, function(error){
 			deferred.reject(error);
@@ -177,7 +178,7 @@ exports.getArtists = function(userid, api){
 		.then(function(aids){
 			userAndRelArtists = userAndRelArtists.concat(aids);
 			var numToExtract = (aids.length < 20) ? aids.length : 20; 
-			return self.allRelatedArtists(this.shuffle(aids).slice(0, numToExtract), api);
+			return self.allRelatedArtists(self.shuffle(aids).slice(0, numToExtract), api);
 		})
 		.then(function(relids){
 			userAndRelArtists = userAndRelArtists.concat(relids);
