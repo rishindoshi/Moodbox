@@ -34,7 +34,7 @@ if (('webkitSpeechRecognition' in window)){
 	          interimTranscript += event.results[i][0].transcript;
 	        }
 	    }
-	    console.log(interimTranscript);
+	    // console.log(interimTranscript);
 	    if (finalTranscript.length > 0 && interimTranscript == "") {
 	    	doneRecording();
 	    }
@@ -89,17 +89,33 @@ function startExtraction(){
 	console.log("START RECORDING");
 	// window.source.connect(context.destination);
 	window.extractionInterval = setInterval(function(){
-		var featureArray = meydaAnalyzer.get(["mfcc"]);
-		mfcc.push(featureArray);
+		var featureObj = meydaAnalyzer.get(["mfcc"]);
+		if(mfcc.length == 20){
+			console.log(featureObj.mfcc);
+		}
+		mfcc.push(featureObj.mfcc);
 	}, 40)
 };
+
+function averageMfcc(){
+	avg = new Array(mfcc[0].length);
+	avg.fill(0);
+	mfcc.forEach(function(vec, index){
+		vec.forEach(function(value, index){
+			avg[index] += value;
+		});
+	});
+	avg.forEach(function(value, index){
+		avg[index] = avg[index] / mfcc.length;
+	});
+	return avg;
+}
 
 function doneRecording(){
 	showLoader();
 	window.source.disconnect();
 	clearInterval(extractionInterval);
 	console.log("DONE RECORDING:");
-	// console.log(mfcc);
 	if(finalTranscript){
 		console.log(finalTranscript);
 	} else {
@@ -110,19 +126,8 @@ function doneRecording(){
 	transForm.attr("action", "/mood");
 	$('#userSaid').val(finalTranscript);
 	transForm.submit();
-	// $.ajax({
-	// 	type: "GET",
-	// 	url: "/mood",
-	// 	dataType: "json",
-	// 	contentType: "application/json",
-	// 	data: {
-	// 		transcript: finalTranscript
-	// 	},
-	// 	success: function(data){
-
-	// 	}
-	// });
-	
+	console.log(averageMfcc());
+	mfcc = [];
 };
 
 function getPlaylist(id){
