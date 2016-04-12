@@ -89,6 +89,13 @@ module.exports = function(app, api, generate, qgen) {
 		});
 	});
 
+	// Rating Route
+	app.post('/rating', function(req, res) {
+		console.log(req.body.rating);
+		// Save rating in DB
+		res.status(200).end();
+	});
+
 	// app.get('*', loggedIn, function(req, res) {
 	// 	res.redirect('/', {user: req.user});
 	// });

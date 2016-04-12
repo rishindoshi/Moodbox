@@ -16,7 +16,9 @@ app.use(express.static(__dirname + '/public'));
 app.use(session({ secret: 'dick chaney made money off the Iraq War' }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 var spotifyAPI = require('./app/spotify')(config);
 var generate = require("./app/generate");
