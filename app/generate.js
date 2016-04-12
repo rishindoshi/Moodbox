@@ -9,6 +9,23 @@ var Q = require('q');
 var request = require('request-promise');
 var promiseRetry = require('promise-retry');
 
+exports.shuffle = function(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 exports.getMoodArtists = function(mood, api){
 	var deferred = Q.defer();
 	promiseArray = [];
@@ -18,6 +35,7 @@ exports.getMoodArtists = function(mood, api){
 		.then(function(data){
 			var playlists = data.body.playlists.items;
 			var num = (playlists.length < 4) ? playlists.length : 4;
+			playlists = self.shuffle(playlists);
 			for(var i=0; i < num; ++i){
 				promiseArray.push(self.playlistArtists(playlists[i].id,
 													   playlists[i].owner.id,
@@ -50,7 +68,9 @@ exports.printArtistNames = function(ids, api){
 }
 
 exports.getUserPlaylistIds = function(userid, api){
+	console.log("IN getUserPlaylistIds");
 	var deferred = Q.defer();
+	var self = this;
 	api.getUserPlaylists(userid)
 		.then(function(data){
 			var ids = data.body.items.filter(function(playlist){
@@ -58,7 +78,7 @@ exports.getUserPlaylistIds = function(userid, api){
 			}).map(function(playlist){
 				return playlist.id;
 			});
-			ids = ids.slice(0, 4);
+			ids = self.shuffle(ids).slice(0, 4);
 			deferred.resolve(ids);
 		}, function(error){
 			deferred.reject(error);
@@ -81,7 +101,7 @@ exports.playlistArtists = function(pid, userid, api){
 		.catch(function(error){
 			console.log("ERROR in playlistArtists:");
 			deferred.reject(error);
-		})
+		});
 	return deferred.promise;
 };
 
@@ -158,7 +178,7 @@ exports.getArtists = function(userid, api){
 		.then(function(aids){
 			userAndRelArtists = userAndRelArtists.concat(aids);
 			var numToExtract = (aids.length < 20) ? aids.length : 20; 
-			return self.allRelatedArtists(aids.slice(0, numToExtract), api);
+			return self.allRelatedArtists(self.shuffle(aids).slice(0, numToExtract), api);
 		})
 		.then(function(relids){
 			userAndRelArtists = userAndRelArtists.concat(relids);
@@ -176,12 +196,14 @@ exports.getArtists = function(userid, api){
 
 exports.getArtistPopTracks = function(aid, api){
 	var deferred = Q.defer();
+	var self = this;
 	api.getArtistTopTracks(aid, 'US')
 		.then(function(data){
 			var allTracks = data.body.tracks;
-			var userTracks = allTracks.slice(0, 5).map(function(track){
+			var userTracks = allTracks.map(function(track){
 				return track.id;
 			});
+			userTracks = self.shuffle(userTracks).slice(0, 5);
 			deferred.resolve(userTracks);
 		})
 		.catch(function(error){

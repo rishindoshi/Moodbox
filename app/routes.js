@@ -58,13 +58,29 @@ module.exports = function(app, api, generate, qgen) {
 		var userid = req.query.id;
 		var userArtists = [];
 		generate.getArtists(userid, api)
-		.then(function(aids){
-			userArtists = aids;
-			return generate.getMoodArtists(mood, api);
-		})
-		.then(function(moodArtists){
-			var allArtists = moodArtists.filter(function(n){
-				return userArtists.indexOf(n) != -1;
+			.then(function(aids){
+				console.log(aids.length + " user artists");
+				userArtists = aids;
+				return generate.getMoodArtists(mood, api);
+			})
+			.then(function(moodArtists){
+				console.log(moodArtists.length + " mood artists");
+				var allArtists = moodArtists.filter(function(n){
+				    return userArtists.indexOf(n) != -1;
+				});
+				return generate.generateTracks(allArtists, api);
+			})
+			.then(function(trackids){
+				console.log(trackids.length + " tracks");
+				numTracks = (trackids.length < 40) ? trackids.length : 40;
+				trackids = generate.shuffle(trackids).slice(0, numTracks);
+				return generate.makePlaylist(trackids, userid, api);
+			})
+			.then(function(playlist){
+				console.log("SUCCESS CREATING PLAYLIST");
+			})
+			.catch(function(error){
+				console.log(error);
 			});
 			return generate.generateTracks(allArtists, api);
 		})
