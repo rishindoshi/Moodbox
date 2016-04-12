@@ -8,23 +8,46 @@
 			<div class="col-md-3 col-sm-4 col-xs-6">
 				<div class="tile-outer">
 					<img class="tile" src="{{img}}">
-					<a class="tile-toggle" id="toggle-{{@index}}"></a>
+					<a class="tile-toggle" id="toggle-{{@index}}">
+						<!-- <h3 class="tile-title">{{title}}</h3> -->
+						<div class="tile-cover"></div>
+					</a>
 					<audio id="{{@index}}">
 						<source src="{{url}}" type="audio/mp3">
 					</audio>
 					<script type="text/javascript">
 						$('#{{@index}}')[0].volume = 0;
+							// This track is playing
 						$('#toggle-{{@index}}').click(function() {
 						  	if ($('#{{@index}}')[0].paused == false) {
+						  		console.log('stopping this Track', {{@index}});
+
 						  		$('#{{@index}}').animate({volume: 0}, 300,'swing', function() {
 						      		$('#{{@index}}')[0].pause();
 							      	$(this).removeClass('playing');
 						  		});
-						  } else {
-						      	$('#{{@index}}')[0].play();
+						  	// Other track is playing
+						  } else if (currenltyPlaying !== "" && $(currenltyPlaying)[0].paused == false) {
+						  		var tmp = currenltyPlaying
+						  		console.log('stopping', tmp, "and playing", {{@index}});
+						      	currenltyPlaying = "#"+{{@index}};
+						  		$(tmp).animate({volume: 0}, 300,'swing', function() {
+							    	$(tmp)[0].pause();							    
+						  		});
+
+					      		$('#{{@index}}')[0].play();
 						  		$('#{{@index}}').animate({volume: 1}, 300,'swing', function() {
 							      	$(this).addClass('playing');
 						  		});
+
+						  	// No track is playing
+						  } else {
+						  		currenltyPlaying = "#" + {{@index}};
+					      		$(currenltyPlaying)[0].play();
+						  		$(currenltyPlaying).animate({volume: 1}, 300,'swing', function() {
+							      	$(this).addClass('playing');
+						  		});
+							  	console.log('set current to', currenltyPlaying, "andplaying");
 						  }
 						});
 					</script>
@@ -33,7 +56,7 @@
 			{{/each}}
 		</div>
 	</div>
-	<div class="col-md-4">
+	<div class="col-md-4 hidden-sm">
 		<div id="results">
 			<div class="ro">
 				<h3 class="cut">Rate your Playlist</h3>
@@ -50,14 +73,16 @@
 			<div class="ro">
 				<a class="btn btn-primary spotify" href="spotify:playlist:{{pid}}">Open in Spotify</a>
 			</div>
-			</div>
+		</div>
 	</div>
 </div>
 <script type="text/javascript">
 
 $('#results').affix({
   offset: 98
-})
+});
+
+var currenltyPlaying = "";
 
 function handleClick(e) {
 	$.ajax({
