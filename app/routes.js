@@ -27,6 +27,8 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		var mood = "";
 		if(userScore.score > 0){
 			mood = "happy";
+		} else {
+			mood = "sad";
 		}
 		console.log("User " + userid + " is " + mood);
 		var userArtists = [];
