@@ -2,7 +2,7 @@
 	<h1>Your Results <small>Check it</small></h1>
 </div>
 <div class="row">
-	<div class="col-md-8">
+	<div class="col-md-8 border-right">
 		{{#each tracks}}
 		<div class="media">
 			<a class="media-left" href="#">
@@ -10,7 +10,9 @@
 			</a>
 			<div class="media-body">
 				<h4 class="media-heading">{{title}}</h4>
-				<audio controls></audio>
+				<audio controls>
+					<source src="{{url}}" type="audio/mp3">
+				</audio>
 			</div>
 		</div>
 		{{/each}}
@@ -18,12 +20,18 @@
 	<div class="col-md-4">
 
 		<div class="ro">
-			<a class="btn btn-primary" href="/">TRY AGAIN</a>
-			<!--<div class="fb-share-button" data-href="http://www.moodbox.xyz" data-layout="box_count"></div> -->
-		</div>
-		<div class="ro">
-			<h2>Rate your Playlist</h2>
+			<h3>Rate your Playlist</h3>
 			<div id="rating"></div>
+		</div>
+		<div class="divider"></div>
+		<div class="ro">
+			<h4>Or Share it!</h4>
+			<div class="fb-share-button" data-href="http://www.moodbox.xyz" data-layout="button"></div>
+		</div>
+		<div class="divider"></div>
+
+		<div class="ro">
+			<a class="btn btn-primary spotify" href="{{playlist.uri}}">View Playlist</a>
 		</div>
 	</div>
 </div>
