@@ -82,7 +82,6 @@ module.exports = function(app, api, generate, qgen) {
 			.catch(function(error){
 				console.log(error);
 			});
-			return generate.generateTracks(allArtists, api);
 	});
 
 	app.get('/', loggedIn, function(req, res) {
