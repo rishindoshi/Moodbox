@@ -3,40 +3,62 @@
 </div>
 <div class="row">
 	<div class="col-md-8 border-right">
-		{{#each tracks}}
-		<div class="media">
-			<a class="media-left" href="#">
-				<img class="media-object" src="{{img}}" alt="Generic placeholder image">
-			</a>
-			<div class="media-body">
-				<h4 class="media-heading">{{title}}</h4>
-				<audio controls>
-					<source src="{{url}}" type="audio/mp3">
-				</audio>
+		<div class="row">
+			{{#each tracks}}
+			<div class="col-md-3 col-sm-4 col-xs-6">
+				<div class="tile-outer">
+					<img class="tile" src="{{img}}">
+					<a class="tile-toggle" id="toggle-{{@index}}"></a>
+					<audio id="{{@index}}">
+						<source src="{{url}}" type="audio/mp3">
+					</audio>
+					<script type="text/javascript">
+						$('#{{@index}}')[0].volume = 0;
+						$('#toggle-{{@index}}').click(function() {
+						  	if ($('#{{@index}}')[0].paused == false) {
+						  		$('#{{@index}}').animate({volume: 0}, 300,'swing', function() {
+						      		$('#{{@index}}')[0].pause();
+							      	$(this).removeClass('playing');
+						  		});
+						  } else {
+						      	$('#{{@index}}')[0].play();
+						  		$('#{{@index}}').animate({volume: 1}, 300,'swing', function() {
+							      	$(this).addClass('playing');
+						  		});
+						  }
+						});
+					</script>
+				</div>
 			</div>
+			{{/each}}
 		</div>
-		{{/each}}
 	</div>
 	<div class="col-md-4">
+		<div id="results">
+			<div class="ro">
+				<h3 class="cut">Rate your Playlist</h3>
+				<div id="rating"></div>
+				<div style="display: none" class="alert alert-success" id="thanks" role="alert">Thanks! You've made Moodbox better</div>
+			</div>
+			<div class="divider"></div>
+			<div class="ro">
+				<h4>Or Share it!</h4>
+				<div class="fb-share-button" data-href="http://www.moodbox.xyz" data-layout="button"></div>
+			</div>
+			<div class="divider"></div>
 
-		<div class="ro">
-			<h3>Rate your Playlist</h3>
-			<div id="rating"></div>
-			<div style="display: none" class="alert alert-success" id="thanks" role="alert">Thanks! You've made Moodbox better</div>
-		</div>
-		<div class="divider"></div>
-		<div class="ro">
-			<h4>Or Share it!</h4>
-			<div class="fb-share-button" data-href="http://www.moodbox.xyz" data-layout="button"></div>
-		</div>
-		<div class="divider"></div>
-
-		<div class="ro">
-			<a class="btn btn-primary spotify" href="spotify:playlist:{{pid}}">Open in Spotify</a>
-		</div>
+			<div class="ro">
+				<a class="btn btn-primary spotify" href="spotify:playlist:{{pid}}">Open in Spotify</a>
+			</div>
+			</div>
 	</div>
 </div>
 <script type="text/javascript">
+
+$('#results').affix({
+  offset: 98
+})
+
 function handleClick(e) {
 	$.ajax({
 		url: "/rating",
