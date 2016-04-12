@@ -57,7 +57,8 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 				console.log("SUCCESS CREATING PLAYLIST");
 				res.render('results', {
 					pid: playlist.snapshot_id,
-					tracks: userTracks
+					tracks: userTracks,
+					mood: mood
 				});
 			})
 			.catch(function(error){
@@ -82,6 +83,24 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		var emotion = req.body.emotion || "NULL";
 		var playlistID = req.body.playlistID || "0";
 		var query = 'INSERT INTO feedback (rating, emotion, playlistID) VALUES (' + rating + ',"' + emotion +'",' + playlistID + ');';
+		console.log(query);
+		// Save rating in DB
+		db.query(query, function(err, rows, fields) {
+			if (!err)
+				console.log('result: ', rows);
+			else
+				console.log('err: ', err);
+		});
+		res.send(200);
+	});
+
+	// Rating Route
+	app.post('/class-rating', function(req, res) {
+		console.log(req.body.rating);
+		var rating = req.body.rating;
+		var emotion = req.body.emotion || "NULL";
+		var playlistID = req.body.playlistID || "0";
+		var query = 'INSERT INTO classification (rating, emotion) VALUES (' + rating + ',"' + emotion +'");';
 		console.log(query);
 		// Save rating in DB
 		db.query(query, function(err, rows, fields) {

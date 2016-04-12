@@ -66,6 +66,14 @@
 			</div>
 			<div class="divider"></div>
 			<div class="ro">
+				<h4 class="cut">We thought you were <strong>{{mood}}</strong></h4>
+				<p>What this correct?</p>
+				<div class="class-btn btn btn-success" id="class-good">YES</div>
+				<div class="class-btn btn btn-danger" id="class-bad">NO</div>
+				<div style="display: none" class="alert alert-success" id="class-thanks" role="alert">Thanks! You've made Moodbox better</div>
+			</div>
+			<div class="divider"></div>
+			<div class="ro">
 				<h4>Or Share it!</h4>
 				<div class="fb-share-button" data-href="http://www.moodbox.xyz" data-layout="button"></div>
 			</div>
@@ -88,12 +96,38 @@ $('#results').affix({
 
 var currenltyPlaying = "";
 
+function handleBtn(val) {
+	$.ajax({
+		url: "/class-rating",
+		method: "POST",
+		dataType: "json",
+		data: {
+			rating: val,
+			emotion: "{{mood}}",
+			playlistID: "{{pid}}"
+		},
+		success: function() {
+			console.log("ya");
+		}, error: function(e) {
+			console.log(e);
+			$('.class-btn').hide();
+			$('#class-thanks').show();
+		}
+	}).done(function(e) {
+		console.log(e);
+	});
+}
+
 function handleClick(e) {
 	$.ajax({
 		url: "/rating",
 		method: "POST",
 		dataType: "json",
-		data: {rating: e},
+		data: {
+			rating: e,
+			emotion: "{{mood}}",
+			playlistID: "{{pid}}"
+		},
 		success: function() {
 			console.log("ya");
 		}, error: function(e) {
@@ -105,5 +139,13 @@ function handleClick(e) {
 		console.log(e);
 	});
 }
+
+$('#class-good').click(function() {
+	handleBtn(1);
+});
+$('#class-bad').click(function() {
+	handleBtn(0);
+});
+
 $('#rating').raty({ click: handleClick });
 </script>
