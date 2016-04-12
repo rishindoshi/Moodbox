@@ -15,7 +15,7 @@ module.exports = function(classification, sentiment, comparative) {
 	var mood = "";
 	if (score <-3)
 		mood = "very sad"
-	else if (score <= 1) {
+	else if (score <= -1) {
 		mood = "sad"
 	} else if (score >= 3) {
 		mood = "very happy"

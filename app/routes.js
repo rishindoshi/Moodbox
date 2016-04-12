@@ -90,7 +90,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		var rating = req.body.rating;
 		var emotion = req.body.emotion || "NULL";
 		var playlistID = req.body.playlistID || "0";
-		var query = 'INSERT INTO feedback (rating, emotion, playlistID) VALUES (' + rating + ',"' + emotion +'",' + playlistID + ');';
+		var query = 'INSERT INTO feedback (rating, emotion, playlistID) VALUES (' + rating + ',"' + emotion +'","' + playlistID + '");';
 		console.log(query);
 		// Save rating in DB
 		db.query(query, function(err, rows, fields) {
