@@ -22,6 +22,7 @@
 		<div class="ro">
 			<h3>Rate your Playlist</h3>
 			<div id="rating"></div>
+			<div style="display: none" class="alert alert-success" id="thanks" role="alert">Thanks! You've made Moodbox better</div>
 		</div>
 		<div class="divider"></div>
 		<div class="ro">
@@ -35,13 +36,20 @@
 		</div>
 	</div>
 </div>
-<script>
+<script type="text/javascript">
 function handleClick(e) {
 	$.ajax({
 		url: "/rating",
 		method: "POST",
 		dataType: "json",
 		data: {rating: e},
+		success: function() {
+			console.log("ya");
+		}, error: function(e) {
+			console.log(e);
+			$('#rating').hide();
+			$('#thanks').show();
+		}
 	}).done(function(e) {
 		console.log(e);
 	});

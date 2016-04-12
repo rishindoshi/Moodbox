@@ -1,5 +1,5 @@
 var Q = require('q');
-module.exports = function(app, api, generate, qgen) {
+module.exports = function(app, api, generate, qgen, db) {
 
 	// Logged in check
 	function loggedIn(req, res, next) {
@@ -29,25 +29,25 @@ module.exports = function(app, api, generate, qgen) {
 	app.get('/results', function(req, res) {
 		sample_data = {
 			tracks : [
-				{
-					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
-					title: 'Song 1',
-					url: 'this'
-				},
-				{
-					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
-					title: 'Song 2',
-					url: 'this'
-				},
-				{
-					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
-					title: 'Song 3',
-					url: 'there'
-				}
+			{
+				img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
+				title: 'Song 1',
+				url: 'this'
+			},
+			{
+				img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
+				title: 'Song 2',
+				url: 'this'
+			},
+			{
+				img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
+				title: 'Song 3',
+				url: 'there'
+			}
 			]
 		};
-			res.render('results', sample_data);
-		});
+		res.render('results', sample_data);
+	});
 
 	app.get('/test', function(req, res){
 		var mood = "sunny happy";
@@ -85,6 +85,21 @@ module.exports = function(app, api, generate, qgen) {
 			.catch(function(error){
 				console.log(error);
 			});
+			console.log(allArtists.length + " intersection artists");
+			return generate.generateTracks(allArtists, api);
+		})
+		.then(function(trackids){
+			console.log(trackids.length + " tracks");
+			numTracks = (trackids.length < 50) ? trackids.length : 50;
+			trackids = generate.shuffle(trackids).slice(0, numTracks);
+			return generate.makePlaylist(trackids, userid, api);
+		})
+		.then(function(playlist){
+			console.log("SUCCESS CREATING PLAYLIST");
+		})
+		.catch(function(error){
+			console.log(error);
+		});
 	});
 
 	app.get('/', loggedIn, function(req, res) {
@@ -98,8 +113,20 @@ module.exports = function(app, api, generate, qgen) {
 	// Rating Route
 	app.post('/rating', function(req, res) {
 		console.log(req.body.rating);
+		var rating = req.body.rating;
+		var emotion = req.body.emotion || "NULL";
+		var playlistID = req.body.playlistID || "0";
+		var query = 'INSERT INTO feedback (rating, emotion, playlistID) VALUES (' + rating + ',"' + emotion +'",' + playlistID + ');';
+		console.log(query);
 		// Save rating in DB
-		res.status(200).end();
+		db.query(query, function(err, rows, fields) {
+			if (!err)
+				console.log('result: ', rows);
+			else
+				console.log('err: ', err);
+		});
+
+		res.send(200);
 	});
 
 	// app.get('*', loggedIn, function(req, res) {
