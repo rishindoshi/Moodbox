@@ -88,8 +88,8 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 	app.post('/rating', function(req, res) {
 		console.log(req.body.rating);
 		var rating = req.body.rating;
-		var emotion = req.body.emotion || "NULL";
-		var playlistID = req.body.playlistID || "0";
+		var emotion = req.body.emotion;
+		var playlistID = req.body.playlistID;
 		var query = 'INSERT INTO feedback (rating, emotion, playlistID) VALUES (' + rating + ',"' + emotion +'","' + playlistID + '");';
 		console.log(query);
 		// Save rating in DB
@@ -123,6 +123,49 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 	app.get('/error', function(req, res) {
 		res.render('error');
 	});
+
+	app.get('/stats', function(req, res) {
+		var query = 'SELECT * from classification';
+		db.query(query, function(err, rows, fields) {
+			if (!err) {
+				console.log('result: ', rows);		
+				var total = 0.0
+				var good = 0.0
+				rows.forEach(function(row) {
+					total++;
+					if (row.rating == 1) {
+						good++;
+					}
+				});
+				var classVal = good / total;
+				good = 0.0;
+				total = 0.0;
+				query = 'SELECT * from feedback';
+				db.query(query, function(err, rows, fields) {
+					if (!err) {
+						rows.forEach(function(row) {
+							total++;
+							good += row.rating;
+						});
+						var playVal = good / (total * 5.0);
+						res.render('stats', {
+							classVal : (classVal * 100),
+							playVal : (playVal * 100)
+						});
+						console.log('result: ', rows);
+					}
+					else {
+						console.log('err: ', err);
+					}
+				});
+				
+			}
+			else {
+
+				console.log('err: ', err);
+			}
+		});
+	})
 
 	app.get('*', loggedIn, function(req, res) {
 		res.redirect('/error');
