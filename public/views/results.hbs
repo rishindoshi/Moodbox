@@ -6,7 +6,7 @@
 		<div class="row">
 			{{#each tracks}}
 			<div class="col-md-3 col-sm-4 col-xs-6">
-				<div class="tile-outer">
+				<div class="tile-outer thumbnail">
 					<img class="tile" src="{{img}}">
 					<a class="tile-toggle" id="toggle-{{@index}}">
 						<!-- <h3 class="tile-title">{{title}}</h3> -->
@@ -73,6 +73,9 @@
 
 			<div class="ro">
 				<a class="btn btn-primary spotify" href="spotify:playlist:{{pid}}">Open in Spotify</a>
+			</div>
+			<div class="ro">
+				<a class="btn btn-primary" href="/">Make Another</a>
 			</div>
 		</div>
 	</div>
