@@ -20,7 +20,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 	});
 
 	app.get('/mood', function(req, res){
-		var userid = "rdoshi023";
+		var userid = req.user.id;
 		var trans = req.query.transcript;
 		console.log("TRANSCRIPT: " + trans);
 		var userScore = sent(trans);
