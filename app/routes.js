@@ -3,11 +3,11 @@ module.exports = function(app, api, generate, qgen) {
 
 	// Logged in check
 	function loggedIn(req, res, next) {
-	    if (req.user) {
-	        next();
-	    } else {
-	        res.redirect('/login');
-	    }
+		if (req.user) {
+			next();
+		} else {
+			res.redirect('/login');
+		}
 	}
 
 	//Rendering our index page
@@ -29,6 +29,29 @@ module.exports = function(app, api, generate, qgen) {
 		// pass features into classifier
 		res.send("todo later");
 	});
+
+	app.get('/results', function(req, res) {
+		sample_data = {
+			tracks : [
+				{
+					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
+					title: 'Song 1',
+					url: 'this'
+				},
+				{
+					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
+					title: 'Song 2',
+					url: 'this'
+				},
+				{
+					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
+					title: 'Song 3',
+					url: 'there'
+				}
+			]
+		};
+			res.render('results', sample_data);
+		});
 
 	app.get('/test', function(req, res){
 		var mood = "happy";
@@ -59,6 +82,7 @@ module.exports = function(app, api, generate, qgen) {
 			.catch(function(error){
 				console.log(error);
 			});
+			return generate.generateTracks(allArtists, api);
 	});
 
 	app.get('/', loggedIn, function(req, res) {
@@ -68,6 +92,13 @@ module.exports = function(app, api, generate, qgen) {
 			user: req.user,
 			question: question
 		});
+	});
+
+	// Rating Route
+	app.post('/rating', function(req, res) {
+		console.log(req.body.rating);
+		// Save rating in DB
+		res.status(200).end();
 	});
 
 	// app.get('*', loggedIn, function(req, res) {
