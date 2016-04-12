@@ -203,9 +203,9 @@ exports.getArtistPopTracks = function(aid, api){
 			var userTracks = allTracks.map(function(track){
 				return {
 					id: track.id,
-					name: track.name,
-					preview: track.preview_url,
-					imageUrl: track.album.images[0].url
+					title: track.name,
+					url: track.preview_url,
+					img: track.album.images[0].url
 				};
 			});
 			// console.log(userTracks[0]);
