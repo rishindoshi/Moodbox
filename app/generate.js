@@ -17,6 +17,37 @@ exports.shuffle = function(array) {
   return array;
 }
 
+exports.getUserArtists = function(userid, api){
+	var deferred = Q.defer();
+	var self = this;
+	var req_url = "https://api.spotify.com/v1/me/top/artists";
+	var userAndRelArtists = [];
+	var rel_req_options = {
+		url: req_url,
+		limit: 50,
+		headers: {
+			'Authorization': 'Bearer ' + api.getAccessToken()
+		}
+	};
+	request(rel_req_options)
+		.then(function(res){
+			var data = JSON.parse(res);
+			var artists = data.items.map(function(artist){
+				return artist.id;
+			});
+			userAndRelArtists = userAndRelArtists.concat(artists);
+			return self.allRelatedArtists(artists, api);
+		})
+		.then(function(relids){
+			userAndRelArtists = userAndRelArtists.concat(relids);
+			deferred.resolve(Array.from(new Set(userAndRelArtists)));
+		})
+		.catch(function(error){
+			deferred.reject(error);
+		});
+	return deferred.promise;
+};
+
 exports.infoTracks = function(tids, api){
 	var deferred = Q.defer();
 	api.getTracks(tids)
@@ -26,7 +57,8 @@ exports.infoTracks = function(tids, api){
 					id: track.id,
 					title: track.name,
 					url: track.preview_url,
-					img: track.album.images[0].url	
+					img: track.album.images[0].url,
+					artist: track.artists[0].name
 				};
 			});
 			deferred.resolve(trackObjs);
@@ -54,7 +86,6 @@ exports.playlistTracks = function(pid, owner, aids, api){
 			}).map(function(track){
 				return track.track.id;
 			});
-			// tracks = self.shuffle(tracks).slice(0, 4);
 			deferred.resolve({artists: artists, tracks: tracks});
 		})
 		.catch(function(error){
@@ -72,7 +103,7 @@ exports.getMoodArtists = function(mood, aids, api){
 	api.searchPlaylists(mood)
 		.then(function(data){
 			var playlists = data.body.playlists.items;
-			var num = (playlists.length < 5) ? playlists.length : 5;
+			var num = (playlists.length < 3) ? playlists.length : 3;
 			playlists = self.shuffle(playlists);
 			for(var i=0; i < num; ++i){
 				promiseArray.push(self.playlistTracks(playlists[i].id,
@@ -89,7 +120,7 @@ exports.getMoodArtists = function(mood, aids, api){
 			}
 			var obj = {
 				artists: Array.from(new Set(moodArtists)),
-				tracks: self.shuffle(Array.from(new Set(moodTracks))).slice(0, 15)
+				tracks: self.shuffle(Array.from(new Set(moodTracks))).slice(0, 25)
 			}
 			deferred.resolve(obj);
 		})	

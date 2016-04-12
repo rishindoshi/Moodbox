@@ -59,6 +59,12 @@ function showLoader() {
 	$('#overlay').removeClass('gone', 1000);
 }
 
+function testRecording(){
+	hideButton();
+	finalTranscript = "happy";
+	doneRecording();
+};
+
 function startRecording(){
 	hideButton();
 	navigator.getUserMedia({video: false, audio: true}, function(mediaStream) {

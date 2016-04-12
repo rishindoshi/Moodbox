@@ -26,14 +26,13 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		var trans = req.query.transcript;
 		console.log("TRANSCRIPT: " + trans);
 		var userSent = sent(trans);
-
 		var mood = score("", userSent, "" )
 		
 		console.log("User " + userid + " is " + mood);
 		var userArtists = [];
 		var userTracks = [];
 		var moodTracks = [];
-		generate.getArtists(userid, api)
+		generate.getUserArtists(userid, api)
 			.then(function(aids){
 				console.log(aids.length + " user artists");
 				userArtists = aids;
@@ -51,7 +50,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 				return generate.generateTracks(allArtists, api);
 			})
 			.then(function(trackObjs){
-				numTracks = (trackObjs.length < 50) ? trackObjs.length : 50;
+				numTracks = (trackObjs.length < 30) ? trackObjs.length : 30;
 				trackObjs = generate.shuffle(trackObjs).slice(0, numTracks);
 				userTracks = trackObjs;
 				return generate.infoTracks(moodTracks, api);

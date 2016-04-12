@@ -11,7 +11,7 @@ module.exports = function(app, passport, config, api) {
 	});
 
 	app.get('/auth/spotify',
-		passport.authenticate('spotify', { scope: ['playlist-modify-private', 'user-read-email', 'user-read-private'] }),
+		passport.authenticate('spotify', { scope: ['playlist-modify-private', 'user-read-email', 'user-read-private', 'user-top-read'] }),
 		function(req, res){
 		    // The request will be redirected to spotify for authentication, so this
 		    // function will not be called.
@@ -37,6 +37,7 @@ module.exports = function(app, passport, config, api) {
 	      // to associate the spotify account with a user record in your database,
 	      // and return that user instead.
 	      api.setAccessToken(accessToken);
+	      api.setRefreshToken(refreshToken);
 	      return done(null, profile);
 	  });
 	}));
