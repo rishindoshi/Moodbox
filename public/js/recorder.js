@@ -101,7 +101,7 @@ function doneRecording(){
 	console.log("DONE RECORDING:");
 	// console.log(mfcc);
 	if(finalTranscript){
-		console.log("Final", finalTranscript);
+		console.log(finalTranscript);
 	} else {
 		console.log("NO FINAL TRANSCRIPT RECORDED");
 	}
