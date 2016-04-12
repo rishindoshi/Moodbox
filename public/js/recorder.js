@@ -37,7 +37,6 @@ if (('webkitSpeechRecognition' in window)){
 	    console.log(interimTranscript);
 	    if (finalTranscript.length > 0 && interimTranscript == "") {
 	    	doneRecording();
-
 	    }
 	    updateText(interimTranscript);
   	};

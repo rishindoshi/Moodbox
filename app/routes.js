@@ -57,6 +57,7 @@ module.exports = function(app, api, generate, qgen) {
 		var mood = "sunny happy";
 		var userid = req.query.id;
 		var userArtists = [];
+		var userTracks = [];
 		generate.getArtists(userid, api)
 			.then(function(aids){
 				console.log(aids.length + " user artists");
@@ -71,14 +72,19 @@ module.exports = function(app, api, generate, qgen) {
 				console.log(allArtists.length + " intersection artists");
 				return generate.generateTracks(allArtists, api);
 			})
-			.then(function(trackids){
-				console.log(trackids.length + " tracks");
-				numTracks = (trackids.length < 50) ? trackids.length : 50;
-				trackids = generate.shuffle(trackids).slice(0, numTracks);
-				return generate.makePlaylist(trackids, userid, api);
+			.then(function(trackObjs){
+				console.log(trackObjs.length + " tracks");
+				numTracks = (trackObjs.length < 50) ? trackObjs.length : 50;
+				trackObjs = generate.shuffle(trackObjs).slice(0, numTracks);
+				userTracks = trackObjs;
+				return generate.makePlaylist(trackObjs, userid, api);
 			})
 			.then(function(playlist){
 				console.log("SUCCESS CREATING PLAYLIST");
+				res.render('results', {
+					pid: playlist.snapshot_id,
+					tracks: userTracks
+				});
 			})
 			.catch(function(error){
 				console.log(error);
