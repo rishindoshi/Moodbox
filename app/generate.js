@@ -216,6 +216,7 @@ exports.getArtists = function(userid, api){
 	var self = this;
 	this.getUserPlaylistIds(userid, api)
 		.then(function(pids){
+			console.log("Got " + pids.length + " of the users playlists");
 			return self.allPlaylistArtists(pids, userid, api);
 		})
 		.then(function(aids){
