@@ -87,18 +87,15 @@ a {
   transition: .2s;
 }
 
-.tile-toggle .tile-cover:hover {
+.tile-toggle:hover {
   background: black;
   opacity: .5;
   transition: .2s;
 }
 
-.tile-toggle .playing {
-  background: yellow;
-}
-
-.playing {
-  background: white;
+.tile-outer .playing {
+  background: black !important;
+  opacity: .9;
 }
 
 .btn-circle {

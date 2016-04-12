@@ -20,32 +20,33 @@
 							// This track is playing
 						$('#toggle-{{@index}}').click(function() {
 						  	if ($('#{{@index}}')[0].paused == false) {
-						  		console.log('stopping this Track', {{@index}});
+						      	$(this).removeClass('playing');
 
 						  		$('#{{@index}}').animate({volume: 0}, 300,'swing', function() {
 						      		$('#{{@index}}')[0].pause();
-							      	$(this).removeClass('playing');
 						  		});
 						  	// Other track is playing
 						  } else if (currenltyPlaying !== "" && $(currenltyPlaying)[0].paused == false) {
+						      	$(this).addClass('playing');
+						      	$('#toggle-' + currenltyPlaying.substr(1)).removeClass('playing');
 						  		var tmp = currenltyPlaying
 						  		console.log('stopping', tmp, "and playing", {{@index}});
 						      	currenltyPlaying = "#"+{{@index}};
 						  		$(tmp).animate({volume: 0}, 300,'swing', function() {
-							    	$(tmp)[0].pause();							    
+							    	$(tmp)[0].pause();	
+
 						  		});
 
 					      		$('#{{@index}}')[0].play();
 						  		$('#{{@index}}').animate({volume: 1}, 300,'swing', function() {
-							      	$(this).addClass('playing');
 						  		});
 
 						  	// No track is playing
 						  } else {
+							    $(this).addClass('playing');
 						  		currenltyPlaying = "#" + {{@index}};
 					      		$(currenltyPlaying)[0].play();
 						  		$(currenltyPlaying).animate({volume: 1}, 300,'swing', function() {
-							      	$(this).addClass('playing');
 						  		});
 							  	console.log('set current to', currenltyPlaying, "andplaying");
 						  }
