@@ -83,17 +83,6 @@ module.exports = function(app, api, generate, qgen) {
 				console.log(error);
 			});
 			return generate.generateTracks(allArtists, api);
-		})
-		.then(function(trackids){
-			console.log(trackids);
-			return generate.makePlaylist(trackids, userid, api);
-		})
-		.then(function(playlist){
-			console.log("SUCCESS CREATING PLAYLIST");
-		})
-		.catch(function(error){
-			console.log(error);
-		});
 	});
 
 	app.get('/', loggedIn, function(req, res) {
