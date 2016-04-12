@@ -22,8 +22,9 @@ app.use(bodyParser.urlencoded({
 
 var spotifyAPI = require('./app/spotify')(config);
 var generate = require("./app/generate");
+var db = require('./app/db');
 require('./app/auth')(app, passport, config, spotifyAPI);
-require('./app/routes')(app, spotifyAPI, generate, qgen, sentiment);
+require('./app/routes')(app, spotifyAPI, generate, qgen, sentiment, db);
 
 //This allows us to use handlebars as our template engine
 app.set('views', __dirname + '/public/views');
