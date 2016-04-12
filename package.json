@@ -7,6 +7,7 @@
     "express-handlebars": "^2.0.1",
     "express-session": "^1.13.0",
     "handlebars": "^4.0.4",
+    "mysql": "^2.10.2",
     "passport": "^0.3.2",
     "passport-spotify": "^0.3.0",
     "promise-retry": "^1.1.0",

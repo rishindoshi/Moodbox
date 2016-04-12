@@ -1,6 +1,7 @@
+// DB config
 var mysql      = require('mysql');
 var connection = mysql.createConnection({
-	host     : 'localhost',
+	host     : '104.236.24.198',
 	user     : 'root',
 	password : 'systems2016',
 	database : 'moodbox'
@@ -8,14 +9,4 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
-exports = connection;
-
-// connection.query('SELECT * from < table name >', function(err, rows, fields) {
-//   if (!err)
-//     console.log('The solution is: ', rows);
-//   else
-//     console.log('Error while performing Query.');
-// });
-
-// connection.end();
-
+module.exports = connection;
