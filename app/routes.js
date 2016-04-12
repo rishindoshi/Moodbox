@@ -23,10 +23,6 @@ module.exports = function(app, api, generate, qgen) {
 	app.get('/mood', function(req, res){
 		console.log("received mood request");
 		console.log(req.query.transcript);
-		// generate.getMoodBasedPlaylist("happy", api);
-
-		// console.log(req.query.features);
-		// pass features into classifier
 		res.send("todo later");
 	});
 

@@ -208,8 +208,6 @@ exports.getArtistPopTracks = function(aid, api){
 					img: track.album.images[0].url
 				};
 			});
-			// console.log(userTracks[0]);
-			// process.exit();
 			userTracks = self.shuffle(userTracks).slice(0, 5);
 			deferred.resolve(userTracks);
 		})
