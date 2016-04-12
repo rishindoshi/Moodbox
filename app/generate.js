@@ -201,7 +201,12 @@ exports.getArtistPopTracks = function(aid, api){
 		.then(function(data){
 			var allTracks = data.body.tracks;
 			var userTracks = allTracks.map(function(track){
-				return track.id;
+				return {
+					id: track.id,
+					title: track.name,
+					url: track.preview_url,
+					img: track.album.images[0].url
+				};
 			});
 			userTracks = self.shuffle(userTracks).slice(0, 5);
 			deferred.resolve(userTracks);
@@ -215,34 +220,35 @@ exports.getArtistPopTracks = function(aid, api){
 exports.generateTracks = function(aids, api){
 	var deferred = Q.defer();
 	var promiseArray = [];
-	var trackids = [];
+	var trackObjs = [];
 	console.log("generating tracks from " + aids.length + " artists");
 	for(var i=0; i<aids.length; ++i){
 		promiseArray.push(this.getArtistPopTracks(aids[i], api));
 	}
 	Q.all(promiseArray).done(function(values){
 		for(var j=0; j<values.length; ++j){
-			trackids = trackids.concat(values[j]);
+			trackObjs = trackObjs.concat(values[j]);
 		}
-		deferred.resolve(trackids);
+		deferred.resolve(trackObjs);
 	});
 	return deferred.promise;
 };
 
-exports.makePlaylist = function(tracks, userid, api) {
+exports.makePlaylist = function(trackObjs, userid, api) {
 	var deferred = Q.defer();
-	tracks.forEach(function(track, index, tracks) {
-		tracks[index] = "spotify:track:" + track;
+	var trackIds = [];
+	trackObjs.forEach(function(trackObj, index) {
+		trackIds.push("spotify:track:" + trackObj.id);
 	});
 	api.createPlaylist(userid, "Moodbox", {public: false})
 		.then(function(data) {
 			var playlistid = data.body.id;
-			return api.addTracksToPlaylist(userid, playlistid, tracks);
+			return api.addTracksToPlaylist(userid, playlistid, trackIds);
 		})
 		.then(function(data){
 			//returns playlist obj with tracks in it
 			//extract tracks before resolving
-			deferred.resolve(data);
+			deferred.resolve(data.body);
 		})
 		.catch(function(error){
 			deferred.reject(error);
