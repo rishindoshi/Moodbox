@@ -106,20 +106,23 @@ function doneRecording(){
 		console.log("NO FINAL TRANSCRIPT RECORDED");
 	}
 	recognizer.stop();
-	$.ajax({
-		type: 'GET',
-		url: "/mood",
-		dataType: "json",
-		contentType: "application/json",
-		data: {
-			features: mfcc,
-			transcript: finalTranscript
-		},
-		success: function(){
-			mfcc = [];
-			finalTranscript = "";
-		}
-	});
+	var transForm = $('#transForm');
+	transForm.attr("action", "/mood");
+	$('#userSaid').val(finalTranscript);
+	transForm.submit();
+	// $.ajax({
+	// 	type: "GET",
+	// 	url: "/mood",
+	// 	dataType: "json",
+	// 	contentType: "application/json",
+	// 	data: {
+	// 		transcript: finalTranscript
+	// 	},
+	// 	success: function(data){
+
+	// 	}
+	// });
+	
 };
 
 function getPlaylist(id){

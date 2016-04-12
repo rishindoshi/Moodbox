@@ -1,5 +1,5 @@
 var Q = require('q');
-module.exports = function(app, api, generate, qgen) {
+module.exports = function(app, api, generate, qgen, sent) {
 
 	// Logged in check
 	function loggedIn(req, res, next) {
@@ -21,33 +21,50 @@ module.exports = function(app, api, generate, qgen) {
 	});
 
 	app.get('/mood', function(req, res){
-		console.log("received mood request");
-		console.log(req.query.transcript);
-		res.send("todo later");
-	});
+		var userid = "rdoshi023";
+		var trans = req.query.transcript;
+		console.log("TRANSCRIPT: " + trans);
+		var userScore = sent(trans);
+		var mood = ""; 
+		if(userScore.score > 0){
+			mood = "happy";
+		}
+		console.log("User " + userid + " is " + mood);
+		var userArtists = [];
+		var userTracks = [];
+		generate.getArtists(userid, api)
+			.then(function(aids){
+				console.log(aids.length + " user artists");
+				userArtists = aids;
+				return generate.getMoodArtists(mood, api);
+			})
+			.then(function(moodArtists){
+				console.log(moodArtists.length + " mood artists");
+				var allArtists = moodArtists.filter(function(n){
+				    return userArtists.indexOf(n) != -1;
+				});
+				console.log(allArtists.length + " intersection artists");
+				return generate.generateTracks(allArtists, api);
+			})
+			.then(function(trackObjs){
+				console.log(trackObjs.length + " tracks");
+				numTracks = (trackObjs.length < 50) ? trackObjs.length : 50;
+				trackObjs = generate.shuffle(trackObjs).slice(0, numTracks);
+				userTracks = trackObjs;
+				return generate.makePlaylist(trackObjs, userid, api);
+			})
+			.then(function(playlist){
+				console.log("SUCCESS CREATING PLAYLIST");
+				res.render('results', {
+					pid: playlist.snapshot_id,
+					tracks: userTracks
+				});
+			})
+			.catch(function(error){
+				console.log(error);
+			});
 
-	app.get('/results', function(req, res) {
-		sample_data = {
-			tracks : [
-				{
-					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
-					title: 'Song 1',
-					url: 'this'
-				},
-				{
-					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
-					title: 'Song 2',
-					url: 'this'
-				},
-				{
-					img: 'url(https://a-v2.sndcdn.com/assets/images/header/cloud@2x-e5fba4.png)',
-					title: 'Song 3',
-					url: 'there'
-				}
-			]
-		};
-			res.render('results', sample_data);
-		});
+	});
 
 	app.get('/test', function(req, res){
 		var mood = "sunny happy";
