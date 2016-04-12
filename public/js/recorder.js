@@ -37,7 +37,6 @@ if (('webkitSpeechRecognition' in window)){
 	    console.log(interimTranscript);
 	    if (finalTranscript.length > 0 && interimTranscript == "") {
 	    	doneRecording();
-
 	    }
 	    updateText(interimTranscript);
   	};
@@ -88,7 +87,7 @@ function startRecording(){
 
 function startExtraction(){
 	console.log("START RECORDING");
-	window.source.connect(context.destination);
+	// window.source.connect(context.destination);
 	window.extractionInterval = setInterval(function(){
 		var featureArray = meydaAnalyzer.get(["mfcc"]);
 		mfcc.push(featureArray);
@@ -102,7 +101,7 @@ function doneRecording(){
 	console.log("DONE RECORDING:");
 	// console.log(mfcc);
 	if(finalTranscript){
-		console.log("Final", finalTranscript);
+		console.log(finalTranscript);
 	} else {
 		console.log("NO FINAL TRANSCRIPT RECORDED");
 	}

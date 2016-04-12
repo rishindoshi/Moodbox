@@ -23,10 +23,6 @@ module.exports = function(app, api, generate, qgen, db) {
 	app.get('/mood', function(req, res){
 		console.log("received mood request");
 		console.log(req.query.transcript);
-		// generate.getMoodBasedPlaylist("happy", api);
-
-		// console.log(req.query.features);
-		// pass features into classifier
 		res.send("todo later");
 	});
 
@@ -57,16 +53,37 @@ module.exports = function(app, api, generate, qgen, db) {
 		var mood = "sunny happy";
 		var userid = req.query.id;
 		var userArtists = [];
+		var userTracks = [];
 		generate.getArtists(userid, api)
-		.then(function(aids){
-			console.log(aids.length + " user artists");
-			userArtists = aids;
-			return generate.getMoodArtists(mood, api);
-		})
-		.then(function(moodArtists){
-			console.log(moodArtists.length + " mood artists");
-			var allArtists = moodArtists.filter(function(n){
-				return userArtists.indexOf(n) != -1;
+			.then(function(aids){
+				console.log(aids.length + " user artists");
+				userArtists = aids;
+				return generate.getMoodArtists(mood, api);
+			})
+			.then(function(moodArtists){
+				console.log(moodArtists.length + " mood artists");
+				var allArtists = moodArtists.filter(function(n){
+				    return userArtists.indexOf(n) != -1;
+				});
+				console.log(allArtists.length + " intersection artists");
+				return generate.generateTracks(allArtists, api);
+			})
+			.then(function(trackObjs){
+				console.log(trackObjs.length + " tracks");
+				numTracks = (trackObjs.length < 50) ? trackObjs.length : 50;
+				trackObjs = generate.shuffle(trackObjs).slice(0, numTracks);
+				userTracks = trackObjs;
+				return generate.makePlaylist(trackObjs, userid, api);
+			})
+			.then(function(playlist){
+				console.log("SUCCESS CREATING PLAYLIST");
+				res.render('results', {
+					pid: playlist.snapshot_id,
+					tracks: userTracks
+				});
+			})
+			.catch(function(error){
+				console.log(error);
 			});
 			console.log(allArtists.length + " intersection artists");
 			return generate.generateTracks(allArtists, api);
