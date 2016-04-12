@@ -19,7 +19,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		res.redirect('/');
 	});
 
-	app.get('/mood', function(req, res){
+	app.get('/mood', loggedIn, function(req, res){
 		var userid = req.user.id;
 		var trans = req.query.transcript;
 		console.log("TRANSCRIPT: " + trans);
@@ -93,8 +93,8 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		res.send(200);
 	});
 
-	// app.get('*', loggedIn, function(req, res) {
-	// 	res.redirect('/', {user: req.user});
-	// });
+	app.get('*', loggedIn, function(req, res) {
+		res.redirect(200, '/');
+	});
 
 }
