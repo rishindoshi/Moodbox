@@ -1,4 +1,6 @@
 var Q = require('q');
+var score = require('./sentiscore');
+
 module.exports = function(app, api, generate, qgen, sent, db) {
 	// Logged in check
 	function loggedIn(req, res, next) {
@@ -19,17 +21,14 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		res.redirect('/');
 	});
 
-	app.get('/mood', function(req, res){
+	app.get('/mood', loggedIn, function(req, res){
 		var userid = req.user.id;
 		var trans = req.query.transcript;
 		console.log("TRANSCRIPT: " + trans);
-		var userScore = sent(trans);
-		var mood = "";
-		if(userScore.score > 0){
-			mood = "happy";
-		} else {
-			mood = "sad";
-		}
+		var userSent = sent(trans);
+
+		var mood = score("", userSent, "" )
+		
 		console.log("User " + userid + " is " + mood);
 		var userArtists = [];
 		var userTracks = [];
@@ -72,6 +71,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 			.catch(function(error){
 				// send em back an error page that allows them to go back to home
 				console.log(error);
+				res.redirect('/error');
 			});
 	});
 
@@ -101,8 +101,12 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		res.send(200);
 	});
 
-	// app.get('*', loggedIn, function(req, res) {
-	// 	res.redirect('/', {user: req.user});
-	// });
+	app.get('/error', function(req, res) {
+		res.render('error');
+	});
+
+	app.get('*', loggedIn, function(req, res) {
+		res.redirect('/error');
+	});
 
 }

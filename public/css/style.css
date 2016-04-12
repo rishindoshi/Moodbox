@@ -43,6 +43,7 @@ a {
 
 .spotify {
   background: #648F00;
+  margin-bottom: 8px;
 }
 
 .media {
@@ -51,7 +52,7 @@ a {
 
 .affix {
   top: 15px;
-  position: fixed;
+  position: fixed !important;
 }
 
 .cut {
@@ -93,12 +94,16 @@ a {
   transition: .2s;
 }
 
-.tile-toggle .playing {
-  background: yellow;
+.tile-outer .playing {
+  background: black !important;
+  opacity: 1;
 }
 
-.playing {
-  background: white;
+.playing .tile-cover {
+  background: url('/assets/th-play-btn.png');
+  background-size: contain;
+  width: 50%;
+  margin: 0 auto;
 }
 
 .btn-circle {
