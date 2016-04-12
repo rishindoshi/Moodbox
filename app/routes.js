@@ -62,6 +62,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 			.catch(function(error){
 				console.log(error);
 			});
+	});
 
 	app.get('/test', function(req, res){
 		var mood = "sunny happy";
@@ -99,21 +100,6 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 			.catch(function(error){
 				console.log(error);
 			});
-			console.log(allArtists.length + " intersection artists");
-			return generate.generateTracks(allArtists, api);
-		})
-		.then(function(trackids){
-			console.log(trackids.length + " tracks");
-			numTracks = (trackids.length < 50) ? trackids.length : 50;
-			trackids = generate.shuffle(trackids).slice(0, numTracks);
-			return generate.makePlaylist(trackids, userid, api);
-		})
-		.then(function(playlist){
-			console.log("SUCCESS CREATING PLAYLIST");
-		})
-		.catch(function(error){
-			console.log(error);
-		});
 	});
 
 	app.get('/', loggedIn, function(req, res) {
