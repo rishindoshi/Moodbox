@@ -31,6 +31,29 @@ a {
 	text-align: right;
 }
 
+.divider {
+  margin-top:10px;
+  margin-bottom:10px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.border-right {
+  border-right: 1px solid #e1e1e1;
+}
+
+.spotify {
+  background: #648F00;
+}
+
+.media {
+  margin-bottom: 40px;
+}
+
+.media-object {
+  height: 64px;
+  width: 64px;
+}
+
 .btn-circle {
   width: 30px;
   height: 30px;
