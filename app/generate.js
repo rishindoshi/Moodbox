@@ -1,17 +1,9 @@
-// Here we get all the tracks from all the user's playlists
-// we want to extract all the unique artists from each of these tracks
-// we then want this list of artists and add to it related artists
-// we then want to extract playlists that match input mood (happy/sad/etc) by doing play
-// list search on spotifyAPI
-// we will again extract unique artists from these playlists and also add related artists
-// now find intersection of artists between above two lists
 var Q = require('q');
 var request = require('request-promise');
 var promiseRetry = require('promise-retry');
 
 exports.shuffle = function(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
-
   // While there remain elements to shuffle...
   while (0 !== currentIndex) {
     // Pick a remaining element...
@@ -22,32 +14,84 @@ exports.shuffle = function(array) {
     array[currentIndex] = array[randomIndex];
     array[randomIndex] = temporaryValue;
   }
-
   return array;
 }
 
-exports.getMoodArtists = function(mood, api){
+exports.infoTracks = function(tids, api){
+	var deferred = Q.defer();
+	api.getTracks(tids)
+		.then(function(data){
+			var trackObjs = data.body.tracks.map(function(track){
+				return {
+					id: track.id,
+					title: track.name,
+					url: track.preview_url,
+					img: track.album.images[0].url	
+				};
+			});
+			deferred.resolve(trackObjs);
+		})
+		.catch(function(error){
+			deferred.reject(error);
+		});
+	return deferred.promise;
+};
+
+exports.playlistTracks = function(pid, owner, aids, api){
+	var deferred = Q.defer();
+	var self = this;
+	api.getPlaylistTracks(owner, pid)
+		.then(function(data){
+			var tracks = data.body.items;
+			var artists = tracks.filter(function(track){
+				return track.track;
+			}).map(function(track){
+				return track.track.artists[0].id;
+			});
+			tracks = tracks.filter(function(track){
+				return (track.track) && 
+					   (aids.indexOf(track.track.artists[0].id) != -1);
+			}).map(function(track){
+				return track.track.id;
+			});
+			// tracks = self.shuffle(tracks).slice(0, 4);
+			deferred.resolve({artists: artists, tracks: tracks});
+		})
+		.catch(function(error){
+			deferred.reject(error);
+		});
+	return deferred.promise;
+};
+
+exports.getMoodArtists = function(mood, aids, api){
 	var deferred = Q.defer();
 	promiseArray = [];
 	moodArtists = [];
+	moodTracks = [];
 	var self = this;
 	api.searchPlaylists(mood)
 		.then(function(data){
 			var playlists = data.body.playlists.items;
-			var num = (playlists.length < 4) ? playlists.length : 4;
+			var num = (playlists.length < 5) ? playlists.length : 5;
 			playlists = self.shuffle(playlists);
 			for(var i=0; i < num; ++i){
-				promiseArray.push(self.playlistArtists(playlists[i].id,
-													   playlists[i].owner.id,
-													   api));
+				promiseArray.push(self.playlistTracks(playlists[i].id,
+													  playlists[i].owner.id,
+													  aids,
+													  api));
 			}
 			return Q.all(promiseArray);
 		})
 		.then(function(values){
 			for(var i=0; i<values.length; ++i){
-				moodArtists = moodArtists.concat(values[i]);
+				moodArtists = moodArtists.concat(values[i].artists);
+				moodTracks = moodTracks.concat(values[i].tracks);
 			}
-			deferred.resolve(Array.from(new Set(moodArtists)));
+			var obj = {
+				artists: Array.from(new Set(moodArtists)),
+				tracks: self.shuffle(Array.from(new Set(moodTracks))).slice(0, 15)
+			}
+			deferred.resolve(obj);
 		})	
 		.catch(function(error){
 			deferred.reject(error);
@@ -56,7 +100,6 @@ exports.getMoodArtists = function(mood, api){
 }
 
 exports.printArtistNames = function(ids, api){
-	console.log(ids);
 	api.getArtists(ids)
 		.then(function(data){
 			data.body.artists.forEach(function(artist){
@@ -78,7 +121,7 @@ exports.getUserPlaylistIds = function(userid, api){
 				// console.log(playlist.name);
 				return playlist.id;
 			});
-			ids = self.shuffle(ids).slice(0, 4);
+			ids = self.shuffle(ids).slice(0, 5);
 			deferred.resolve(ids);
 		}, function(error){
 			deferred.reject(error);
@@ -94,7 +137,7 @@ exports.playlistArtists = function(pid, userid, api){
 			var artists = tracks.filter(function(track){
 				return track.track;
 			}).map(function(track){
-				return track.track.artists[0].id;	
+				return track.track.artists[0].id;
 			});
 			deferred.resolve(artists);
 		})
@@ -221,7 +264,6 @@ exports.generateTracks = function(aids, api){
 	var deferred = Q.defer();
 	var promiseArray = [];
 	var trackObjs = [];
-	console.log("generating tracks from " + aids.length + " artists");
 	for(var i=0; i<aids.length; ++i){
 		promiseArray.push(this.getArtistPopTracks(aids[i], api));
 	}
