@@ -68,7 +68,6 @@ exports.printArtistNames = function(ids, api){
 }
 
 exports.getUserPlaylistIds = function(userid, api){
-	console.log("IN getUserPlaylistIds");
 	var deferred = Q.defer();
 	var self = this;
 	api.getUserPlaylists(userid)
@@ -76,6 +75,7 @@ exports.getUserPlaylistIds = function(userid, api){
 			var ids = data.body.items.filter(function(playlist){
 				return playlist.public;
 			}).map(function(playlist){
+				// console.log(playlist.name);
 				return playlist.id;
 			});
 			ids = self.shuffle(ids).slice(0, 4);
@@ -212,10 +212,11 @@ exports.getArtistPopTracks = function(aid, api){
 	return deferred.promise;
 };
 
-exports.generateTracks =function(aids, api){
+exports.generateTracks = function(aids, api){
 	var deferred = Q.defer();
 	var promiseArray = [];
 	var trackids = [];
+	console.log("generating tracks from " + aids.length + " artists");
 	for(var i=0; i<aids.length; ++i){
 		promiseArray.push(this.getArtistPopTracks(aids[i], api));
 	}
