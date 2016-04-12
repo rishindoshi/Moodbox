@@ -27,6 +27,8 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		var mood = "";
 		if(userScore.score > 0){
 			mood = "happy";
+		} else {
+			mood = "sad";
 		}
 		console.log("User " + userid + " is " + mood);
 		var userArtists = [];
@@ -60,6 +62,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 				});
 			})
 			.catch(function(error){
+				// send em back an error page that allows them to go back to home
 				console.log(error);
 			});
 	});
@@ -87,7 +90,6 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 			else
 				console.log('err: ', err);
 		});
-
 		res.send(200);
 	});
 

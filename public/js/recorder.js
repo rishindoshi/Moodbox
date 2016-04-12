@@ -90,17 +90,14 @@ function startExtraction(){
 	// window.source.connect(context.destination);
 	window.extractionInterval = setInterval(function(){
 		var featureObj = meydaAnalyzer.get(["mfcc"]);
-		if(mfcc.length == 20){
-			console.log(featureObj.mfcc);
-		}
 		mfcc.push(featureObj.mfcc);
-	}, 40)
+	}, 40);
 };
 
 function averageMfcc(){
 	avg = new Array(mfcc[0].length);
 	avg.fill(0);
-	mfcc.forEach(function(vec, index){
+	mfcc.forEach(function(vec){
 		vec.forEach(function(value, index){
 			avg[index] += value;
 		});
