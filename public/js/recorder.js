@@ -88,7 +88,7 @@ function startRecording(){
 
 function startExtraction(){
 	console.log("START RECORDING");
-	window.source.connect(context.destination);
+	// window.source.connect(context.destination);
 	window.extractionInterval = setInterval(function(){
 		var featureArray = meydaAnalyzer.get(["mfcc"]);
 		mfcc.push(featureArray);
