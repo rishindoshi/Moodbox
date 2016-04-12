@@ -32,25 +32,33 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		console.log("User " + userid + " is " + mood);
 		var userArtists = [];
 		var userTracks = [];
+		var moodTracks = [];
 		generate.getArtists(userid, api)
 			.then(function(aids){
 				console.log(aids.length + " user artists");
 				userArtists = aids;
-				return generate.getMoodArtists(mood, api);
+				return generate.getMoodArtists(mood, aids, api);
 			})
-			.then(function(moodArtists){
-				console.log(moodArtists.length + " mood artists");
-				var allArtists = moodArtists.filter(function(n){
+			.then(function(moodObj){
+				console.log(moodObj.artists.length + " mood artists");
+				console.log(moodObj.tracks.length + " mood tracks");
+				moodTracks = moodObj.tracks;
+				var allArtists = moodObj.artists.filter(function(n){
 				    return userArtists.indexOf(n) != -1;
 				});
 				console.log(allArtists.length + " intersection artists");
+				generate.printArtistNames(allArtists, api);
 				return generate.generateTracks(allArtists, api);
 			})
 			.then(function(trackObjs){
-				console.log(trackObjs.length + " tracks");
 				numTracks = (trackObjs.length < 50) ? trackObjs.length : 50;
 				trackObjs = generate.shuffle(trackObjs).slice(0, numTracks);
 				userTracks = trackObjs;
+				return generate.infoTracks(moodTracks, api);
+			})
+			.then(function(trackObjs){
+				var pTracks = userTracks.concat(moodTracks);
+				console.log(pTracks.length + " playlist tracks");
 				return generate.makePlaylist(trackObjs, userid, api);
 			})
 			.then(function(playlist){
