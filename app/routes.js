@@ -24,7 +24,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		var trans = req.query.transcript;
 		console.log("TRANSCRIPT: " + trans);
 		var userScore = sent(trans);
-		var mood = ""; 
+		var mood = "";
 		if(userScore.score > 0){
 			mood = "happy";
 		}
