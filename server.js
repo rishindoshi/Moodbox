@@ -7,7 +7,7 @@ var session = require('express-session');
 var config = require('./app/config');
 var bodyParser = require('body-parser');
 var sentiment = require('sentiment');
-var qgen = require('./app/qgen');
+var qgen = require('./app/mood-gen/qgen');
 var app = express();
 
 // Static Files

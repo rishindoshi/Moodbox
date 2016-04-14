@@ -1,7 +1,7 @@
 <div class="center top-buffer">
 	<h1 class="title bump">{{question}}</h1>
 	<h3 id="text" class="bump"></h3>
-	<a class="button button-circle button-flat-caution" id="record-btn" onclick="startRecording()">ANSWER</a>
+	<a class="button button-circle button-flat-caution" id="record-btn" onclick="testRecording()">ANSWER</a>
 	{{!-- <a class="button button-circle button-flat-caution" id="record-btn" href="/test?id={{user.id}}">Test Playlist</a> --}}
 	<form id="transForm" action="/mood" method="get">
 		<input id="userSaid" name="transcript" type="hidden"/>

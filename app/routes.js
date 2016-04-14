@@ -1,5 +1,6 @@
 var Q = require('q');
-var score = require('./sentiscore');
+var score = require('./mood-gen/sentiscore');
+var generate = require('./generate');
 
 module.exports = function(app, api, generate, qgen, sent, db) {
 	// Logged in check
@@ -24,52 +25,19 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 	app.get('/mood', loggedIn, function(req, res){
 		var userid = req.user.id;
 		var trans = req.query.transcript;
+		var userSentiment = sent(trans);
+		var mood = score("", userSentiment, "" );
 		console.log("TRANSCRIPT: " + trans);
-		var userSent = sent(trans);
-		var mood = score("", userSent, "" )
-		
 		console.log("User " + userid + " is " + mood);
-		var userArtists = [];
-		var userTracks = [];
-		var moodTracks = [];
-		generate.getUserArtists(userid, api)
-			.then(function(aids){
-				console.log(aids.length + " user artists");
-				userArtists = aids;
-				return generate.getMoodArtists(mood, aids, api);
-			})
-			.then(function(moodObj){
-				console.log(moodObj.artists.length + " mood artists");
-				console.log(moodObj.tracks.length + " mood tracks");
-				moodTracks = moodObj.tracks;
-				var allArtists = moodObj.artists.filter(function(n){
-				    return userArtists.indexOf(n) != -1;
-				});
-				console.log(allArtists.length + " intersection artists");
-				generate.printArtistNames(allArtists, api);
-				return generate.generateTracks(allArtists, api);
-			})
-			.then(function(trackObjs){
-				numTracks = (trackObjs.length < 30) ? trackObjs.length : 30;
-				trackObjs = generate.shuffle(trackObjs).slice(0, numTracks);
-				userTracks = trackObjs;
-				return generate.infoTracks(moodTracks, api);
-			})
-			.then(function(trackObjs){
-				var pTracks = userTracks.concat(moodTracks);
-				console.log(pTracks.length + " playlist tracks");
-				return generate.makePlaylist(trackObjs, userid, api);
-			})
-			.then(function(playlist){
+		generate.generatePlaylist(userid, mood, api)
+			.then(function(data){
 				console.log("SUCCESS CREATING PLAYLIST");
-				res.render('results', {
-					pid: playlist.snapshot_id,
-					tracks: userTracks,
-					mood: mood
-				});
+				res.render('results', data);
 			})
 			.catch(function(error){
-				// send em back an error page that allows them to go back to home
+				if(error.statusCode === 500){
+					console.log("GOD DAMNIT SPOTIFY");
+				}
 				console.log(error);
 				res.redirect('/error');
 			});
