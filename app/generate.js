@@ -29,18 +29,19 @@ exports.infoTracks = function(tids, api){
 exports.generatePlaylist = function(userid, mood, api){
 	var self = this;
 	var deferred = Q.defer();
-	var userTopArtists = [];
+	var userTopAndRelArtists = [];
 	var moodTracks = [];
 	userGen.getSpotifyBasedTopArtists(userid, api)
 		.then(function(aids){
-			userTopArtists = aids;
+			userTopAndRelArtists = aids;
 			console.log(aids.length + " user top and related artists");
 			return moodGen.getMoodTracks(mood, aids, api);
 		})
 		.then(function(tids){
 			moodTracks = tids;
 			console.log(tids.length + " user relevent mood tracks");
-			var trackArtists = shuffle(userTopArtists).slice(0, 30);
+			artistGen.printArtistNamesFromTracks(tids, api);
+			var trackArtists = shuffle(userTopAndRelArtists).slice(0, 30);
 			return artistGen.generateTracksFromUserArtists(trackArtists, api);
 		})
 		.then(function(tids){

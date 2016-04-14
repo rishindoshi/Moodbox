@@ -94,3 +94,26 @@ exports.printArtistNames = function(ids, api){
 	return deferred.promise;
 }
 
+exports.printArtistNamesFromTracks = function(tids, api){
+	api.getTracks(tids)
+		.then(function(data){
+			console.log("Mood and User intersection artists:");
+			var tracks = data.body.tracks;
+			var artists = tracks.map(function(track){
+				return track.artists[0].name;
+			});
+			artists = Array.from(new Set(artists));
+			artists.forEach(function(artist){
+				console.log(artist);
+			});
+		})
+		.catch(function(error){
+			console.log(error);
+		});
+}
+
+
+
+
+
+

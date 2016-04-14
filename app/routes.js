@@ -3,7 +3,6 @@ var score = require('./mood-gen/sentiscore');
 var generate = require('./generate');
 
 module.exports = function(app, api, generate, qgen, sent, db) {
-	// Logged in check
 	function loggedIn(req, res, next) {
 		if (req.user) {
 			next();
@@ -12,7 +11,6 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		}
 	}
 
-	//Rendering our index page
 	app.get('/login', function(req, res){
 		res.render('login');
 	});
@@ -27,8 +25,10 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 		var trans = req.query.transcript;
 		var userSentiment = sent(trans);
 		var mood = score("", userSentiment, "" );
+
 		console.log("TRANSCRIPT: " + trans);
 		console.log("User " + userid + " is " + mood);
+
 		generate.generatePlaylist(userid, mood, api)
 			.then(function(data){
 				console.log("SUCCESS CREATING PLAYLIST");
@@ -36,7 +36,7 @@ module.exports = function(app, api, generate, qgen, sent, db) {
 			})
 			.catch(function(error){
 				if(error.statusCode === 500){
-					console.log("GOD DAMNIT SPOTIFY");
+					console.log("SPOTIFY INTERNAL SERVER ERROR");
 				}
 				console.log(error);
 				res.redirect('/error');
