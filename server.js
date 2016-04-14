@@ -22,7 +22,8 @@ app.use(bodyParser.urlencoded({
 
 var spotifyAPI = require('./app/spotify')(config);
 var generate = require("./app/generate");
-var db = require('./app/db');
+// var db = require('./app/db');
+var db = {};
 require('./app/auth')(app, passport, config, spotifyAPI);
 require('./app/routes')(app, spotifyAPI, generate, qgen, sentiment, db);
 

@@ -84,6 +84,7 @@ exports.printArtistNames = function(ids, api){
 	var deferred = Q.defer();
 	api.getArtists(ids)
 		.then(function(data){
+			console.log(ids.length + " intersection artists");
 			data.body.artists.forEach(function(artist){
 				console.log(artist.name);
 			});

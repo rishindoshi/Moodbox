@@ -61,7 +61,7 @@ function showLoader() {
 
 function testRecording(){
 	hideButton();
-	finalTranscript = "happy";
+	finalTranscript = "sad";
 	doneRecording();
 };
 

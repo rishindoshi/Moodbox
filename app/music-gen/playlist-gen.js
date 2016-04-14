@@ -7,13 +7,19 @@ exports.getUserReleventPlaylistTracks = function(pid, owner, aids, api){
 	api.getPlaylistTracks(owner, pid)
 		.then(function(data){
 			var tracks = data.body.items;
+			var artists = [];
 			tracks = tracks.filter(function(track){
-				return (track.track) && 
-					   (aids.indexOf(track.track.artists[0].id) != -1);
+				var artist = track.track.artists[0].id;
+				var artistRelevent = (aids.indexOf(artist) != -1);
+				if(artistRelevent){
+					artists.push(artist);
+				}
+				return (track.track) && (artistRelevent)
+					   
 			}).map(function(track){
 				return track.track.id;
 			})
-			deferred.resolve(tracks);
+			deferred.resolve({tracks: tracks, artists: artists});
 		})
 		.catch(function(error){
 			deferred.reject(error);

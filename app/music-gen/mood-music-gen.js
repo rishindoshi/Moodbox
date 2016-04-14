@@ -13,6 +13,7 @@ exports.getMoodTracks = function(mood, aids, api){
 	var deferred = Q.defer();
 	var promiseArray = [];
 	var moodTracks = [];
+	var moodArtists = [];
 	api.searchPlaylists(mood)
 		.then(function(data){
 			var playlists = data.body.playlists.items;
@@ -29,10 +30,12 @@ exports.getMoodTracks = function(mood, aids, api){
 		})
 		.then(function(values){
 			for(var i=0; i<values.length; ++i){
-				moodTracks = moodTracks.concat(values[i]);
+				moodTracks = moodTracks.concat(values[i].tracks);
+				moodArtists = moodArtists.concat(values[i].artists);
 			}
-			moodTracks = shuffle(Array.from(new Set(moodTracks)));
-			deferred.resolve(moodTracks);
+			moodTracks = Array.from(new Set(moodTracks));
+			moodArtists = Array.from(new Set(moodArtists));
+			deferred.resolve({tracks: moodTracks, artists: moodArtists});
 		})	
 		.catch(function(error){
 			deferred.reject(error);
