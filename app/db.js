@@ -7,6 +7,9 @@ var connection = mysql.createConnection({
 	database : 'moodbox'
 });
 
-connection.connect();
+connection.connect(function(err) {
+  console.log(err.code); // 'ECONNREFUSED' 
+  console.log(err.fatal);
+});
 
 module.exports = connection;
